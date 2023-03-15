@@ -7,6 +7,7 @@ export enum EntryKind {
 
 export type ConfigEntry = {
   kind: EntryKind;
+  id: string;
   duration_seconds?: number;
   label: string;
   auto_next?: boolean;

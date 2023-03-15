@@ -1,13 +1,13 @@
-import {
-  PauseCircleIcon,
-  PlayCircleIcon
-} from "@heroicons/react/24/solid";
+import { PauseCircleIcon, PlayCircleIcon } from "@heroicons/react/24/solid";
 import { useEffect } from "react";
 import { useTimer } from "../util/useCountdown";
-import { ConfigEntry, say } from "../pages/index";
+import { say } from "../pages/index";
+import { ConfigEntry } from "../types/config";
 
 export function TimerEntry({
-  config, isActive, next,
+  config,
+  isActive,
+  next,
 }: {
   config: ConfigEntry;
   isActive: boolean;
@@ -55,15 +55,17 @@ export function TimerEntry({
     () => {
       setRunning(false);
     };
-  }, [isActive, reset]);
+  }, [isActive, reset, config.label]);
 
   const toggle = () => isActive && setRunning((r) => !r);
 
   return (
     <div
-      className={`relative m-5 p-5 text-center drop-shadow-lg rounded-lg bg-white ${isActive
-        ? "hover:bg-slate-50 active:bg-slate-100  active:drop-shadow-none cursor-pointer"
-        : ""}`}
+      className={`relative m-5 p-5 text-center drop-shadow-lg rounded-lg bg-white ${
+        isActive
+          ? "hover:bg-slate-50 active:bg-slate-100  active:drop-shadow-none cursor-pointer"
+          : ""
+      }`}
       onClick={toggle}
     >
       <div className="text-5xl">

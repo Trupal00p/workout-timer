@@ -1,4 +1,4 @@
-export default ({ content, Icon, onClick }) => {
+const Button = ({ content, Icon, onClick }) => {
   return (
     <button
       onClick={onClick}
@@ -8,3 +8,5 @@ export default ({ content, Icon, onClick }) => {
     </button>
   );
 };
+
+export default Button;

@@ -1,13 +1,11 @@
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
-import Button from "../components/Button";
-import { useConfig } from "../util/useConfig";
-import { ConfigEntry, EntryKind } from "../types/config";
-import { exampleConfig } from "../util/exampleConfig";
-import React, { ChangeEvent, useEffect } from "react";
-import { useActionHandlerReducer } from "../util/actionHandlerReducer";
 import { Reorder } from "framer-motion";
-import sum from "hash-sum";
-import { setConfig } from "next/config";
+import { ChangeEvent, useEffect } from "react";
+import Button from "../components/Button";
+import { ConfigEntry, EntryKind } from "../types/config";
+import { useActionHandlerReducer } from "../util/actionHandlerReducer";
+import { useConfig } from "../util/useConfig";
+import { randStr } from "../util/randStr";
 // const voiceOptions = window.speechSynthesis.getVoices().map((v) => {
 //   return {
 //     value: v.lang,
@@ -100,7 +98,7 @@ type validator = (val: any, model: { [key: string]: any }) => string;
 type validationErrors = { [key: string]: string };
 type FormModel = { [key: string]: any };
 type actionHandlers = {
-  [key: string]: (args: any) => void;
+  [key: string]: (...args: any[]) => void;
 };
 type FormState = {
   model: FormModel;
@@ -111,12 +109,6 @@ type FormState = {
 function coerceKey(key: string) {
   const index = parseInt(key, 10);
   return isNaN(index) ? key : index;
-}
-
-function randStr(prefix?: string) {
-  return Math.random()
-    .toString(36)
-    .replace("0.", prefix || "");
 }
 
 function updateObjectPath(
@@ -284,14 +276,14 @@ const TimerForm = ({
   entry: ConfigEntry;
   prefix: string;
   state: FormState;
-  actions: { [key: string]: (event: ChangeEvent<HTMLInputElement>) => void };
+  actions: actionHandlers;
 }) => {
   return (
     <div className="border-solid border-black border-2 rounded-lg shadow-lg m-3 p-3">
       <details className="cursor-pointer">
         <summary>
           {getObjectPath(state.model, `${prefix}.label`)} (Exercise)
-          <span
+          {/* <span
             onClick={() => {
               actions.onUpdateList(
                 "definition",
@@ -301,7 +293,7 @@ const TimerForm = ({
             className="underline cursor-pointer text-red-400 float-right"
           >
             Delete
-          </span>
+          </span> */}
         </summary>
         <Input
           type="text"
@@ -479,7 +471,7 @@ export default function Home() {
     if (config) {
       actions.setModel(config);
     }
-  }, [config]);
+  }, [config, actions.setModel]);
 
   const save = () => {
     window.location.assign(`/#${window.btoa(JSON.stringify(state.model))}`);
@@ -513,7 +505,7 @@ export default function Home() {
           values={state.model.definition || []}
           onReorder={onReorder}
         >
-          {state.model.definition?.map((c, i) => {
+          {state.model.definition?.map((c: ConfigEntry, i: number) => {
             const item_prefix = `definition.${i}`;
             return (
               <Reorder.Item key={c.id} value={c}>

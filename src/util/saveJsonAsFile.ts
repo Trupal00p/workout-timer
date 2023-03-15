@@ -17,3 +17,5 @@ const saveJsonAsFile = (filename: string, dataObjToWrite: object) => {
   link.dispatchEvent(evt);
   link.remove();
 };
+
+export default saveJsonAsFile

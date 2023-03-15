@@ -1,21 +1,18 @@
 import {
-  ArrowDownTrayIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
-  ChevronDoubleLeftIcon,
   PencilIcon,
 } from "@heroicons/react/24/solid";
-import { useState, useMemo, useEffect } from "react";
-import Button from "../components/Button";
+import { useEffect, useState } from "react";
 
 import { useConfig } from "@/util/useConfig";
 import { AnimatePresence, motion } from "framer-motion";
 import { TimerEntry } from "../components/TimerEntry";
+import { Config, ConfigEntry, EntryKind } from "../types/config";
 import { lazy } from "../util/lazy";
 import { repeat } from "../util/repeat";
-import { Config, ConfigEntry, EntryKind } from "../types/config";
 
-import { exampleConfig } from "../util/exampleConfig";
+import { randStr } from "@/util/randStr";
 
 const reduceEntry =
   (breadcrumbs: string[]) =>
@@ -31,6 +28,7 @@ const reduceEntry =
           beep_below: 3,
           auto_next: true,
           breadcrumbs,
+          id: randStr("prep_"),
         });
       }
       // add timer entries
@@ -38,6 +36,7 @@ const reduceEntry =
         acc.push({ ...e, breadcrumbs });
         acc.push({
           kind: EntryKind.Rest,
+          id: randStr("rest_"),
           label: `${entry.rest_between_time} second rest`,
           duration_seconds: entry.rest_between_time,
           end_whistle: false,
