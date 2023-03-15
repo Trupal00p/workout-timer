@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 const defaultOnExpire = () => console.log("Countdown");
 
@@ -34,10 +34,10 @@ export const useCountdown = ({
     }
   }, [isRunning]);
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setRunning(false);
     setCount(starting_count);
-  };
+  }, [setRunning, setCount, starting_count]);
 
   return { count, reset, isRunning, setRunning };
 };

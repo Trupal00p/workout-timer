@@ -199,6 +199,13 @@
   dependencies:
     tslib "^2.4.0"
 
+"@tailwindcss/forms@^0.5.3":
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/@tailwindcss/forms/-/forms-0.5.3.tgz#e4d7989686cbcaf416c53f1523df5225332a86e7"
+  integrity sha512-y5mb86JUoiUgBjY/o6FJSFZSEttfb3Q5gllE4xoKjAAD+vBrnIhE4dViwUuow3va8mpH4s9jyUbUbrRGoRdc2Q==
+  dependencies:
+    mini-svg-data-uri "^1.2.3"
+
 "@types/json5@^0.0.29":
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
@@ -1038,6 +1045,11 @@ flat-cache@^3.0.4:
     flatted "^3.1.0"
     rimraf "^3.0.2"
 
+flat@^5.0.2:
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/flat/-/flat-5.0.2.tgz#8ca6fe332069ffa9d324c327198c598259ceb241"
+  integrity sha512-b6suED+5/3rTpUBdG1gupIl8MPFCAMA0QXwmljLhvCUKcUvdE4gWky9zpuGCcXHOsz4J9wPGNWq6OKpmIzz3hQ==
+
 flatted@^3.1.0:
   version "3.2.7"
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.7.tgz#609f39207cb614b89d0765b477cb2d437fbf9787"
@@ -1258,6 +1270,11 @@ has@^1.0.3:
   integrity sha512-f2dvO0VU6Oej7RkWJGrehjbzMAjFp5/VKPp5tTpWIV4JHHZK1/BxbFRtf/siA2SWTe09caDmVtYYzWEIbBS4zw==
   dependencies:
     function-bind "^1.1.1"
+
+hash-sum@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/hash-sum/-/hash-sum-2.0.0.tgz#81d01bb5de8ea4a214ad5d6ead1b523460b0b45a"
+  integrity sha512-WdZTbAByD+pHfl/g9QSsBIIwy8IT+EsPiKDs0KNX+zSHhdDLFKdZu0BQHljvO+0QI/BasbMSUa8wYNCZTvhslg==
 
 ignore@^5.2.0:
   version "5.2.4"
@@ -1593,6 +1610,11 @@ micromatch@^4.0.4, micromatch@^4.0.5:
   dependencies:
     braces "^3.0.2"
     picomatch "^2.3.1"
+
+mini-svg-data-uri@^1.2.3:
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/mini-svg-data-uri/-/mini-svg-data-uri-1.4.4.tgz#8ab0aabcdf8c29ad5693ca595af19dd2ead09939"
+  integrity sha512-r9deDe9p5FJUPZAk3A59wGH7Ii9YrjjWw0jmw/liSbHl2CHiyXj6FcDXDu2K3TjVAXqiJdaw3xxwlZZr9E6nHg==
 
 minimatch@^3.0.4, minimatch@^3.0.5, minimatch@^3.1.1, minimatch@^3.1.2:
   version "3.1.2"
