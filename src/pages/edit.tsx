@@ -239,7 +239,10 @@ const TimerForm = ({
               Delete
             </span>
             <span
-              onPointerDown={(event) => dragControls.start(event)}
+              onPointerDown={(event) => {
+                event.stopPropagation();
+                dragControls.start(event);
+              }}
               className="ml-10"
             >
               <Bars3Icon className="h-5 w-5 cursor-pointe inline" />
@@ -519,7 +522,7 @@ function ConfigFormEntry({
       exit={{ opacity: 0, scale: 0.8 }}
       transition={{ type: "spring" }}
       dragListener={false}
-      // dragControls={dragControls}
+      dragControls={dragControls}
     >
       <FormLevel
         entry={c}
