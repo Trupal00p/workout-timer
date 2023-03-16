@@ -1,27 +1,15 @@
 import {
   ArrowPathIcon,
-  Bars3Icon,
   ChevronDownIcon,
   ChevronRightIcon,
   PlusCircleIcon,
   TrashIcon,
 } from "@heroicons/react/24/solid";
 import { applyPatch, getValueByPointer } from "fast-json-patch";
-import {
-  motion,
-  AnimatePresence,
-  Reorder,
-  useDragControls,
-  useMotionValue,
-} from "framer-motion";
-import { ChangeEvent, useEffect, useState } from "react";
+import { AnimatePresence, motion, Reorder } from "framer-motion";
+import { ChangeEvent, useEffect } from "react";
 import Button from "../components/Button";
-import {
-  ConfigEntry,
-  EntryKind,
-  SetConfig,
-  TimerConfig,
-} from "../types/config";
+import { ConfigEntry, EntryKind, SetConfig } from "../types/config";
 import { useActionHandlerReducer } from "../util/actionHandlerReducer";
 import { randStr } from "../util/randStr";
 import { useConfig } from "../util/useConfig";
@@ -312,7 +300,7 @@ const TimerForm = ({
           label="Count Down Last X Seconds"
           state={state}
           actions={actions}
-          helpText="A beeper will sound every second at the end of this timer when there are this many seconds remaining."
+          helpText="A beeper will sound every second towards the end of this timer when there are this many seconds remaining."
         />
         <Checkbox
           type="checkbox"
@@ -449,50 +437,52 @@ export default function Home() {
     <div className="flex flex-col h-screen">
       {/* <div className="border-solid border-2 border-indigo-600">top</div> */}
       <div className="grow bg-slate-100 overflow-auto relative">
-        <Input
-          type="text"
-          name="/title"
-          label="Routine Name"
-          helpText="Enter a name for this set of exercises."
-          state={state}
-          actions={actions}
-        />
-        <Reorder.Group
-          axis="y"
-          values={state.model.definition}
-          onReorder={onReorder}
-        >
-          <AnimatePresence mode="popLayout">
-            {state.model.definition?.map((c: ConfigEntry, i: number) => {
-              const item_prefix = `/definition/${i}`;
-              return (
-                <Reorder.Item
-                  key={c.id}
-                  value={c}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  // transition={{ type: "spring" }}
-                  dragListener={!c.open}
-                >
-                  <FormLevel
-                    entry={c}
-                    state={state}
-                    actions={actions}
-                    prefix={item_prefix}
-                  />
-                </Reorder.Item>
-              );
-            })}
-          </AnimatePresence>
-        </Reorder.Group>
-        <motion.div layout className="text-center">
-          <Button
-            onClick={() => actions.addTimer("/definition/-")}
-            content="Add Timer"
-            Icon={PlusCircleIcon}
+        <div className="max-w-4xl m-auto">
+          <Input
+            type="text"
+            name="/title"
+            label="Routine Name"
+            helpText="Enter a name for this set of exercises."
+            state={state}
+            actions={actions}
           />
-        </motion.div>
+          <Reorder.Group
+            axis="y"
+            values={state.model.definition}
+            onReorder={onReorder}
+          >
+            <AnimatePresence mode="popLayout">
+              {state.model.definition?.map((c: ConfigEntry, i: number) => {
+                const item_prefix = `/definition/${i}`;
+                return (
+                  <Reorder.Item
+                    key={c.id}
+                    value={c}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    // transition={{ type: "spring" }}
+                    dragListener={!c.open}
+                  >
+                    <FormLevel
+                      entry={c}
+                      state={state}
+                      actions={actions}
+                      prefix={item_prefix}
+                    />
+                  </Reorder.Item>
+                );
+              })}
+            </AnimatePresence>
+          </Reorder.Group>
+          <motion.div layout className="text-center">
+            <Button
+              onClick={() => actions.addTimer("/definition/-")}
+              content="Add Timer"
+              Icon={PlusCircleIcon}
+            />
+          </motion.div>
+        </div>
       </div>
       <div className="border-solid border-2 border-indigo-600 text-center">
         <Button

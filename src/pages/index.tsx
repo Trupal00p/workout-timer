@@ -147,39 +147,45 @@ export default function Home() {
         </div>
       </div>
       <div className="grow bg-slate-100 overflow-hidden relative">
-        <AnimatePresence mode="popLayout">
-          {lazy(compiledConfig)
-            .filter((config) => config.index >= activeIndex)
-            .map((config) => {
-              const isActive = activeIndex === config.index;
-              return (
-                <motion.div
-                  layout
-                  key={`config-${config.index}`}
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  variants={variants}
-                  animate={isActive ? "active" : "next"}
-                  exit={{ scale: 0.8, opacity: 0 }}
-                  transition={{ type: "spring", bounce: 0.3 }}
-                >
-                  <TimerEntry config={config} isActive={isActive} next={next} />
-                </motion.div>
-              );
-            })
-            .collect()}
-          {activeIndex !== 0 && activeIndex >= compiledConfig.length ? (
-            <motion.div
-              className="border-solid border-2 border-yellow-300 text-center p-5 m-5 drop-shadow-lg rounded-lg bg-white text-5xl mt-20 leading-[5rem]"
-              key="complete"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-            >
-              <div className="">🥳🎉🎊</div>
-              <div>Complete!</div>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
+        <div className="max-w-4xl m-auto">
+          <AnimatePresence mode="popLayout">
+            {lazy(compiledConfig)
+              .filter((config) => config.index >= activeIndex)
+              .map((config) => {
+                const isActive = activeIndex === config.index;
+                return (
+                  <motion.div
+                    layout
+                    key={`config-${config.index}`}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    variants={variants}
+                    animate={isActive ? "active" : "next"}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{ type: "spring", bounce: 0.3 }}
+                  >
+                    <TimerEntry
+                      config={config}
+                      isActive={isActive}
+                      next={next}
+                    />
+                  </motion.div>
+                );
+              })
+              .collect()}
+            {activeIndex !== 0 && activeIndex >= compiledConfig.length ? (
+              <motion.div
+                className="border-solid border-2 border-yellow-300 text-center p-5 m-5 drop-shadow-lg rounded-lg bg-white text-5xl mt-20 leading-[5rem]"
+                key="complete"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+              >
+                <div className="">🥳🎉🎊</div>
+                <div>Complete!</div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>
       </div>
       <div className="border-solid border-2 border-indigo-600 text-center">
         <button
