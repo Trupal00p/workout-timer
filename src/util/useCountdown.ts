@@ -80,7 +80,7 @@ export const displayClock = (clock: Clock): string => {
 
 export const useTimer = ({
   duration_seconds,
-  resolution = 5,
+  resolution = 10,
   autostart = true,
   onComplete = defaultOnExpire,
 }: {

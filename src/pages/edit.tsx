@@ -1,98 +1,22 @@
-import { PlusCircleIcon } from "@heroicons/react/24/solid";
-import { Reorder } from "framer-motion";
-import { ChangeEvent, useEffect } from "react";
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  PlusCircleIcon,
+  TrashIcon,
+} from "@heroicons/react/24/solid";
+import { applyPatch, getValueByPointer } from "fast-json-patch";
+import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { ChangeEvent, useEffect, useState } from "react";
 import Button from "../components/Button";
-import { ConfigEntry, EntryKind } from "../types/config";
+import {
+  ConfigEntry,
+  EntryKind,
+  SetConfig,
+  TimerConfig,
+} from "../types/config";
 import { useActionHandlerReducer } from "../util/actionHandlerReducer";
-import { useConfig } from "../util/useConfig";
 import { randStr } from "../util/randStr";
-// const voiceOptions = window.speechSynthesis.getVoices().map((v) => {
-//   return {
-//     value: v.lang,
-//     text: v.name,
-//   };
-// });
-
-// console.log(voiceOptions);
-
-// const compiledConfig = compileConfig(
-//   exampleConfig.presets[0].definition,
-//   exampleConfig.presets[0].title
-// );
-
-// console.log(compiledConfig);
-
-// return {
-//   // general actions
-//   resetForm: () => (draft) => {
-//     draft.model = {};
-//     draft.errors = {};
-//     draft.localErrors = {};
-//     draft.remoteErrors = {};
-//     draft.touched = {};
-//   },
-//   // onblur handlers
-//   onFieldBlur:
-//     (event, { name, value }) =>
-//     (draft) =>
-//       onBlur(draft, name, value),
-//   onSemanticFieldBlur:
-//     (event, { name, value }) =>
-//     (draft) =>
-//       onBlur(draft, name, value),
-//   // onchange handlers
-
-//   onCheckboxFieldChange:
-//     (event, { name, checked }) =>
-//     (draft) =>
-//       onChange(draft, name, checked),
-//   onJoditFieldChange: (value, name) => (draft) => onChange(draft, name, value),
-//   onButtonClick: (value, data) => (draft) =>
-//     onChange(draft, data["data-name"], data["data-clickvalue"]),
-//   onFileFieldChange:
-//     ({ target: { files, name } }) =>
-//     (draft) => {
-//       if (files.length > 0) {
-//         var reader = new FileReader();
-//         reader.readAsDataURL(files[0]);
-//         reader.onload = function () {
-//           onChange(draft, name, reader.result);
-//         };
-//         reader.onerror = function (error) {
-//           onRemoteError(draft, name, [error]);
-//         };
-//       }
-//     },
-//   onSemanticFieldChange:
-//     (event, { name, value }) =>
-//     (draft) =>
-//       onChange(draft, name, value),
-//   // utility
-//   mergeModel:
-//     (newModel, setInitial = false) =>
-//     (draft) => {
-//       draft.model = { ...draft.model, ...newModel };
-//       draft.remoteErrors = {};
-//       const localErrors = getFormErrors(validators, model, draft.touched);
-//       draft.localErrors = localErrors;
-//       draft.errors = localErrors;
-//       if (setInitial) {
-//         draft.savedModel = JSON.stringify(model);
-//       }
-//     },
-//   setModel: (model) => (draft) => {
-//     draft.model = model;
-//     draft.remoteErrors = {};
-//     const localErrors = getFormErrors(validators, model, draft.touched);
-//     draft.localErrors = localErrors;
-//     draft.errors = localErrors;
-//   },
-//   setRemoteErrors: (newErrors) => (draft) => {
-//     Object.entries(newErrors).forEach(([name, remoteErrors]) => {
-//       onRemoteError(draft, name, remoteErrors);
-//     });
-//   },
-// };
+import { useConfig } from "../util/useConfig";
 
 type validator = (val: any, model: { [key: string]: any }) => string;
 type validationErrors = { [key: string]: string };
@@ -106,65 +30,46 @@ type FormState = {
   errors: validationErrors;
 };
 
-function coerceKey(key: string) {
-  const index = parseInt(key, 10);
-  return isNaN(index) ? key : index;
-}
-
-function updateObjectPath(
-  object: { [key: string]: any },
-  value: any,
-  path: string,
-  delimiter = "."
-) {
-  let path_list = path.split(delimiter);
-
-  for (let i = 0; i < path_list.length - 1; i++) {
-    const levelKey = coerceKey(path_list[i]);
-
-    if (!object[levelKey]) {
-      // determine if array or object needs to be defaulted
-      object[levelKey] =
-        typeof coerceKey(path_list[i + 1]) === "number" ? [] : {};
-    }
-
-    object = object[levelKey];
-  }
-
-  object[coerceKey(path_list[path_list.length - 1])] = value;
-}
-function getObjectPath(
-  object: { [key: string]: any },
-  path: string,
-  delimiter = "."
-) {
-  let path_list = path.split(delimiter);
-  const lastKey = path_list.pop();
-  if (lastKey) {
-    for (const key of path_list) {
-      object = object[coerceKey(key)];
-      if (!object) return undefined;
-    }
-
-    return object[coerceKey(lastKey)];
-  }
-}
-
 const actionHandlers = {
   onInputChange:
     (event: ChangeEvent<HTMLInputElement>) =>
     (draft: FormState): void => {
-      updateObjectPath(
-        draft.model,
-        event.target.value || undefined,
-        event.target.name
-      );
+      applyPatch(draft.model, [
+        {
+          op: "replace",
+          path: event.target.name,
+          value: event.target.value || undefined,
+        },
+      ]);
     },
   onCheckboxChange:
     (event: ChangeEvent<HTMLInputElement>) =>
     (draft: FormState): void => {
-      updateObjectPath(draft.model, event.target.checked, event.target.name);
+      applyPatch(draft.model, [
+        {
+          op: "replace",
+          path: event.target.name,
+          value: event.target.checked,
+        },
+      ]);
     },
+  onChange: (path: string, value: any) => (draft: FormState) => {
+    applyPatch(draft.model, [
+      {
+        op: "replace",
+        path,
+        value,
+      },
+    ]);
+  },
+  onDelete: (path: string) => (draft: FormState) => {
+    applyPatch(draft.model, [
+      {
+        op: "remove",
+        path: path,
+      },
+    ]);
+  },
   onBlur:
     (event: ChangeEvent<HTMLInputElement>) =>
     (draft: FormState): void => {
@@ -173,11 +78,18 @@ const actionHandlers = {
   setModel: (model: FormModel) => (draft: FormState) => {
     draft.model = model;
   },
-  addTimer: () => (draft: FormState) => {
-    draft.model.definition.push({
-      kind: EntryKind.Timer,
-      id: randStr(EntryKind.Timer),
-    });
+  addTimer: (path: string) => (draft: FormState) => {
+    applyPatch(draft.model, [
+      {
+        op: "add",
+        path: path,
+        value: {
+          kind: EntryKind.Timer,
+          id: randStr(EntryKind.Timer),
+          auto_next: true,
+        },
+      },
+    ]);
   },
   addSet: () => (draft: FormState) => {
     draft.model.definition.push({
@@ -185,10 +97,6 @@ const actionHandlers = {
       id: randStr(EntryKind.Set),
     });
   },
-  onUpdateList:
-    (path: string, components: Array<ConfigEntry>) => (draft: FormState) => {
-      updateObjectPath(draft.model, components, path);
-    },
   onValidate:
     (validators: { [key: string]: Array<validator> }) => (draft: FormState) => {
       draft.errors = Object.entries(validators).reduce(
@@ -227,7 +135,7 @@ const Input = ({
         type={type}
         name={name}
         id={name}
-        value={getObjectPath(state.model, name) || ""}
+        value={getValueByPointer(state.model, name) || ""}
         onChange={actions.onInputChange}
         onBlur={actions.onBlur}
         {...props}
@@ -255,7 +163,7 @@ const Checkbox = ({
         type={type}
         name={name}
         id={name}
-        checked={getObjectPath(state.model, name) || false}
+        checked={getValueByPointer(state.model, name) || false}
         onChange={actions.onCheckboxChange}
         onBlur={actions.onBlur}
         {...props}
@@ -267,106 +175,129 @@ const Checkbox = ({
   );
 };
 
+const accordionVariants = {
+  open: { opacity: 1 },
+  closed: { height: 0, opacity: 0 },
+};
+
+const Accordion = ({
+  summary,
+  children,
+}: {
+  summary: React.ReactNode;
+  children: React.ReactNode;
+}): JSX.Element => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <div
+        className="cursor-pointer inline border-solid font-bold"
+        onClick={() => setOpen((o) => !o)}
+      >
+        {open ? (
+          <ChevronDownIcon className="h-4 w-4 inline mr-2" />
+        ) : (
+          <ChevronRightIcon className="h-4 w-4 inline mr-2" />
+        )}
+        {summary}
+      </div>
+      {open ? children : null}
+    </div>
+  );
+};
+
 const TimerForm = ({
-  entry,
   prefix,
   state,
   actions,
 }: {
-  entry: ConfigEntry;
   prefix: string;
   state: FormState;
   actions: actionHandlers;
 }) => {
   return (
     <div className="border-solid border-black border-2 rounded-lg shadow-lg m-3 p-3">
-      <details className="cursor-pointer">
-        <summary>
-          {getObjectPath(state.model, `${prefix}.label`)} (Exercise)
-          {/* <span
-            onClick={() => {
-              actions.onUpdateList(
-                "definition",
-                state.model.definition.splice(index, 1)
-              );
-            }}
-            className="underline cursor-pointer text-red-400 float-right"
-          >
-            Delete
-          </span> */}
-        </summary>
+      <Accordion
+        summary={
+          <>
+            {getValueByPointer(state.model, `${prefix}/label`)} (Exercise)
+            <span
+              onClick={(event) => {
+                event.preventDefault();
+                actions.onDelete(prefix);
+              }}
+              className="underline cursor-pointer text-red-400 absolute top-0 right-0"
+            >
+              Delete
+            </span>
+          </>
+        }
+      >
         <Input
           type="text"
-          name={`${prefix}.label`}
+          name={`${prefix}/label`}
           label="Name"
           state={state}
           actions={actions}
         />
-        {/* <Input
-          type="text"
-          name={`${prefix}.id`}
-          label="ID"
-          state={state}
-          actions={actions}
-        /> */}
         <Input
           type="number"
-          name={`${prefix}.duration_seconds`}
+          name={`${prefix}/duration_seconds`}
           label="Duration (Seconds)"
           state={state}
           actions={actions}
         />
         <Input
           type="number"
-          name={`${prefix}.count`}
+          name={`${prefix}/prepare_time`}
+          label="Prep Time (Seconds)"
+          state={state}
+          actions={actions}
+        />
+        <Input
+          type="number"
+          name={`${prefix}/count`}
           label="Loop Count"
           state={state}
           actions={actions}
         />
+
         <Input
           type="number"
-          name={`${prefix}.prepare_time`}
-          label="Prepare Time"
-          state={state}
-          actions={actions}
-        />
-        <Input
-          type="number"
-          name={`${prefix}.rest_between_time`}
-          label="Rest Between Time"
+          name={`${prefix}/rest_between_time`}
+          label="Rest Between Time (Seconds)"
           state={state}
           actions={actions}
         />
         <Input
           type="text"
-          name={`${prefix}.warnings`}
+          name={`${prefix}/warnings`}
           label="Call Out Times"
           state={state}
           actions={actions}
         />
         <Input
           type="number"
-          name={`${prefix}.beep_below`}
+          name={`${prefix}/beep_below`}
           label="Count Down Last X Seconds"
           state={state}
           actions={actions}
         />
         <Checkbox
           type="checkbox"
-          name={`${prefix}.end_whistle`}
+          name={`${prefix}/end_whistle`}
           label="Play End Sound"
           state={state}
           actions={actions}
         />
         <Checkbox
           type="checkbox"
-          name={`${prefix}.auto_next`}
+          name={`${prefix}/auto_next`}
           label="Auto Next"
           state={state}
           actions={actions}
         />
-        <div className="text-right"></div>
-      </details>
+      </Accordion>
     </div>
   );
 };
@@ -377,7 +308,7 @@ const SetForm = ({
   state,
   actions,
 }: {
-  entry: ConfigEntry;
+  entry: SetConfig;
   prefix: string;
   state: FormState;
   actions: { [key: string]: (event: ChangeEvent<HTMLInputElement>) => void };
@@ -386,39 +317,32 @@ const SetForm = ({
     <div className="border-solid border-black border-2 rounded-lg shadow-lg m-3 p-3">
       <details className="cursor-pointer">
         <summary>
-          {getObjectPath(state.model, `${prefix}.label`)} (Group)
+          {getValueByPointer(state.model, `${prefix}/label`)} (Group)
         </summary>
         <Input
           type="text"
-          name={`${prefix}.label`}
+          name={`${prefix}/label`}
           label="Name"
           state={state}
           actions={actions}
         />
-        {/* <Input
-          type="text"
-          name={`${prefix}.id`}
-          label="ID"
-          state={state}
-          actions={actions}
-        /> */}
         <Input
           type="number"
-          name={`${prefix}.count`}
+          name={`${prefix}/count`}
           label="Loop Count"
           state={state}
           actions={actions}
         />
         <Input
           type="number"
-          name={`${prefix}.prepare_time`}
+          name={`${prefix}/prepare_time`}
           label="Prepare Time"
           state={state}
           actions={actions}
         />
 
         {entry?.components?.map((c, i) => {
-          const item_prefix = `${prefix}.components.${i}`;
+          const item_prefix = `${prefix}/components.${i}`;
           return (
             <FormLevel
               key={item_prefix}
@@ -431,7 +355,7 @@ const SetForm = ({
         })}
         <Checkbox
           type="checkbox"
-          name={`${prefix}.auto_next`}
+          name={`${prefix}/auto_next`}
           label="Auto Next"
           state={state}
           actions={actions}
@@ -441,19 +365,25 @@ const SetForm = ({
   );
 };
 
-const FormLevel = (props: {
+const FormLevel = ({
+  prefix,
+  state,
+  actions,
+  entry,
+}: {
   prefix: string;
   state: FormState;
   actions: actionHandlers;
   entry: ConfigEntry;
 }): JSX.Element => {
-  switch (props.entry.kind) {
-    case EntryKind.Timer:
-      return <TimerForm {...props} />;
-    case EntryKind.Set:
-      return <SetForm {...props} />;
-    default:
-      return <div>test</div>;
+  if (entry.kind === EntryKind.Timer) {
+    return <TimerForm prefix={prefix} state={state} actions={actions} />;
+  } else if (entry.kind === EntryKind.Set) {
+    return (
+      <SetForm prefix={prefix} state={state} actions={actions} entry={entry} />
+    );
+  } else {
+    return <div></div>;
   }
 };
 
@@ -477,17 +407,9 @@ export default function Home() {
     window.location.assign(`/#${window.btoa(JSON.stringify(state.model))}`);
   };
 
-  const addTime = () => {
-    // pass
-  };
-
   const onReorder = (components: Array<ConfigEntry>) => {
-    console.log(components);
-    actions.onUpdateList("definition", components);
-    // "definition", components);
+    actions.onChange("/definition", components);
   };
-
-  console.log(state.model);
 
   return (
     <div className="flex flex-col h-screen">
@@ -505,19 +427,30 @@ export default function Home() {
           values={state.model.definition || []}
           onReorder={onReorder}
         >
-          {state.model.definition?.map((c: ConfigEntry, i: number) => {
-            const item_prefix = `definition.${i}`;
-            return (
-              <Reorder.Item key={c.id} value={c}>
-                <FormLevel
-                  entry={c}
-                  state={state}
-                  actions={actions}
-                  prefix={item_prefix}
-                />
-              </Reorder.Item>
-            );
-          })}
+          <AnimatePresence mode="popLayout">
+            {state.model.definition?.map((c: ConfigEntry, i: number) => {
+              const item_prefix = `/definition/${i}`;
+              return (
+                <Reorder.Item
+                  key={c.id}
+                  value={c}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ type: "spring" }}
+                >
+                  <form>
+                    <FormLevel
+                      entry={c}
+                      state={state}
+                      actions={actions}
+                      prefix={item_prefix}
+                    />
+                  </form>
+                </Reorder.Item>
+              );
+            })}
+          </AnimatePresence>
         </Reorder.Group>
         {/* <Button
           onClick={actions.addSet}
@@ -525,7 +458,7 @@ export default function Home() {
           Icon={PlusCircleIcon}
         /> */}
         <Button
-          onClick={actions.addTimer}
+          onClick={() => actions.addTimer("/definition/-")}
           content="Add Timer"
           Icon={PlusCircleIcon}
         />
@@ -538,7 +471,7 @@ export default function Home() {
             });
           }}
           content="Reset"
-          Icon={PlusCircleIcon}
+          Icon={TrashIcon}
         />
         <Button onClick={save} content="Start" Icon={PlusCircleIcon} />
       </div>

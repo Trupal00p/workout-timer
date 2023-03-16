@@ -8,7 +8,12 @@ import { useEffect, useState } from "react";
 import { useConfig } from "@/util/useConfig";
 import { AnimatePresence, motion } from "framer-motion";
 import { TimerEntry } from "../components/TimerEntry";
-import { Config, ConfigEntry, EntryKind } from "../types/config";
+import {
+  Config,
+  ConfigEntry,
+  EntryKind,
+  CompiledConfigEntry,
+} from "../types/config";
 import { lazy } from "../util/lazy";
 import { repeat } from "../util/repeat";
 
@@ -16,7 +21,7 @@ import { randStr } from "@/util/randStr";
 
 const reduceEntry =
   (breadcrumbs: string[]) =>
-  (acc: ConfigEntry[], entry: ConfigEntry): ConfigEntry[] => {
+  (acc: CompiledConfigEntry[], entry: ConfigEntry): CompiledConfigEntry[] => {
     if (entry.kind === EntryKind.Timer) {
       // add prep time if present
       if (entry.prepare_time) {
@@ -33,7 +38,15 @@ const reduceEntry =
       }
       // add timer entries
       for (const e of repeat(entry, entry.count || 1)) {
-        acc.push({ ...e, breadcrumbs });
+        acc.push({
+          ...e,
+          breadcrumbs,
+          warnings: e.warnings
+            ?.replace(/ /g, "")
+            .split(",")
+            .map((t) => parseInt(t, 10))
+            .filter((t) => !!t && !isNaN(t)),
+        });
         acc.push({
           kind: EntryKind.Rest,
           id: randStr("rest_"),
@@ -62,7 +75,7 @@ const reduceEntry =
     return acc;
   };
 
-function compileConfig(config: Config | undefined): ConfigEntry[] {
+function compileConfig(config: Config | undefined): CompiledConfigEntry[] {
   return (
     config?.definition
       .reduce(reduceEntry([config.title]), [])
@@ -99,11 +112,10 @@ export default function Home() {
     setEditUrl(`/edit${window.location.hash}`);
   }, []);
 
-  const compiledConfig: ConfigEntry[] = compileConfig(config);
+  const compiledConfig: CompiledConfigEntry[] = compileConfig(config);
   const next = () =>
     setActiveIndex((v) => Math.min(compiledConfig.length, v + 1));
   const previous = () => setActiveIndex((v) => Math.max(0, v - 1));
-  const toStart = () => setActiveIndex(0);
 
   return (
     <div className="flex flex-col h-screen">

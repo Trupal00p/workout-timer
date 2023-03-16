@@ -1,15 +1,15 @@
 import { PauseCircleIcon, PlayCircleIcon } from "@heroicons/react/24/solid";
 import { useEffect } from "react";
-import { useTimer } from "../util/useCountdown";
 import { say } from "../pages/index";
-import { ConfigEntry } from "../types/config";
+import { CompiledTimerConfig } from "../types/config";
+import { useTimer } from "../util/useCountdown";
 
 export function TimerEntry({
   config,
   isActive,
   next,
 }: {
-  config: ConfigEntry;
+  config: CompiledTimerConfig;
   isActive: boolean;
   next: () => void;
 }): JSX.Element {
