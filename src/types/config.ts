@@ -18,6 +18,7 @@ export type CompiledTimerConfig = {
   rest_between_time?: number;
   warnings?: number[];
   breadcrumbs?: string[];
+  index?: number;
 };
 
 export type CompileSetConfig = {

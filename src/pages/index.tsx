@@ -107,21 +107,30 @@ export default function Home() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [config] = useConfig();
   const [editUrl, setEditUrl] = useState("");
+  const compiledConfig: CompiledConfigEntry[] = compileConfig(config);
+
   useEffect(() => {
     setEditUrl(`/edit${window.location.hash}`);
   }, []);
 
-  const compiledConfig: CompiledConfigEntry[] = compileConfig(config);
+  useEffect(() => {
+    if (activeIndex >= compileConfig.length) {
+      var audio = new Audio("sounds/success-fanfare-trumpets.mp3");
+      audio.play();
+    }
+  }, [activeIndex, compileConfig]);
+
   const next = () =>
     setActiveIndex((v) => Math.min(compiledConfig.length, v + 1));
   const previous = () => setActiveIndex((v) => Math.max(0, v - 1));
+
   return (
     <div className="flex flex-col h-screen">
       <div className="border-solid border-2 border-indigo-600 text-center font-bold text-xl p-2">
         <div>
           <AnimatePresence mode="popLayout">
             {compiledConfig &&
-              compiledConfig[activeIndex]?.breadcrumbs?.map((crumb) => {
+              compiledConfig[activeIndex]?.breadcrumbs?.map((crumb: string) => {
                 return (
                   <motion.span
                     layout
@@ -158,6 +167,18 @@ export default function Home() {
               );
             })
             .collect()}
+          {activeIndex >= compileConfig.length ? (
+            <motion.div
+              className="border-solid border-2 border-yellow-300 text-center p-5 m-5 drop-shadow-lg rounded-lg bg-white text-5xl mt-20 leading-[5rem]"
+              key="complete"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+            >
+              <div className="">🥳🎉🎊</div>
+              <div>Complete!</div>
+            </motion.div>
+          ) : null}
         </AnimatePresence>
       </div>
       <div className="border-solid border-2 border-indigo-600 text-center">
