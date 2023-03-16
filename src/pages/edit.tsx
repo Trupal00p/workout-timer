@@ -12,6 +12,7 @@ import {
   AnimatePresence,
   Reorder,
   useDragControls,
+  useMotionValue,
 } from "framer-motion";
 import { ChangeEvent, useEffect, useState } from "react";
 import Button from "../components/Button";
@@ -186,17 +187,21 @@ const Accordion = ({
   summary,
   right,
   children,
+  open,
+  setOpen,
 }: {
+  open: boolean;
+  setOpen: (o: boolean) => void;
   summary: React.ReactNode;
   right: React.ReactNode;
   children: React.ReactNode;
 }): JSX.Element => {
-  const [open, setOpen] = useState(false);
+  // const [open, setOpen] = useState(false);
   return (
     <div className="relative">
       <div
         className="cursor-pointer inline font-bold"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(!open)}
       >
         {open ? (
           <ChevronDownIcon className="h-4 w-4 inline mr-2" />
@@ -215,39 +220,28 @@ const TimerForm = ({
   prefix,
   state,
   actions,
-  dragControls,
 }: {
   prefix: string;
   state: FormState;
   actions: actionHandlers;
-  dragControls: any;
 }) => {
   return (
     <div className="border-solid border-black border-2 rounded-lg shadow-lg m-3 p-3 bg-blue-200">
       <Accordion
+        open={getValueByPointer(state.model, `${prefix}/open`)}
+        setOpen={(value) => actions.onChange(`${prefix}/open`, value)}
         summary={
           <>{getValueByPointer(state.model, `${prefix}/label`)} (Exercise)</>
         }
         right={
-          <>
-            <span
-              onClick={(event) => {
-                actions.onDelete(prefix);
-              }}
-              className="underline cursor-pointer text-red-400 font-bold"
-            >
-              Delete
-            </span>
-            <span
-              onPointerDown={(event) => {
-                event.stopPropagation();
-                dragControls.start(event);
-              }}
-              className="ml-10"
-            >
-              <Bars3Icon className="h-5 w-5 cursor-pointe inline" />
-            </span>
-          </>
+          <span
+            onClick={(event) => {
+              actions.onDelete(prefix);
+            }}
+            className="underline cursor-pointer text-red-400 font-bold"
+          >
+            Delete
+          </span>
         }
       >
         <Input
@@ -331,7 +325,6 @@ const SetForm = ({
   state: FormState;
   actions: { [key: string]: (event: ChangeEvent<HTMLInputElement>) => void };
 }) => {
-  const dragControls = useDragControls();
   return (
     <div className="border-solid border-black border-2 rounded-lg shadow-lg m-3 p-3 bg-green-100">
       <details className="cursor-pointer">
@@ -369,7 +362,6 @@ const SetForm = ({
               state={state}
               actions={actions}
               prefix={item_prefix}
-              dragControls={dragControls}
             />
           );
         })}
@@ -390,23 +382,14 @@ const FormLevel = ({
   state,
   actions,
   entry,
-  dragControls,
 }: {
   prefix: string;
   state: FormState;
   actions: actionHandlers;
   entry: ConfigEntry;
-  dragControls: any;
 }): JSX.Element => {
   if (entry.kind === EntryKind.Timer) {
-    return (
-      <TimerForm
-        prefix={prefix}
-        state={state}
-        actions={actions}
-        dragControls={dragControls}
-      />
-    );
+    return <TimerForm prefix={prefix} state={state} actions={actions} />;
   } else if (entry.kind === EntryKind.Set) {
     return (
       <SetForm prefix={prefix} state={state} actions={actions} entry={entry} />
@@ -460,13 +443,22 @@ export default function Home() {
             {state.model.definition?.map((c: ConfigEntry, i: number) => {
               const item_prefix = `/definition/${i}`;
               return (
-                <ConfigFormEntry
-                  c={c}
+                <Reorder.Item
                   key={c.id}
-                  state={state}
-                  actions={actions}
-                  item_prefix={item_prefix}
-                />
+                  value={c}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  // transition={{ type: "spring" }}
+                  dragListener={!c.open}
+                >
+                  <FormLevel
+                    entry={c}
+                    state={state}
+                    actions={actions}
+                    prefix={item_prefix}
+                  />
+                </Reorder.Item>
               );
             })}
           </AnimatePresence>
@@ -499,38 +491,5 @@ export default function Home() {
         <Button onClick={save} content="Start" Icon={PlusCircleIcon} />
       </div>
     </div>
-  );
-}
-function ConfigFormEntry({
-  c,
-  state,
-  actions,
-  item_prefix,
-}: {
-  c: ConfigEntry;
-  state: any;
-  actions: any;
-  item_prefix: string;
-}): JSX.Element {
-  const dragControls = useDragControls();
-  return (
-    <Reorder.Item
-      key={c.id}
-      value={c}
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.8 }}
-      transition={{ type: "spring" }}
-      dragListener={false}
-      dragControls={dragControls}
-    >
-      <FormLevel
-        entry={c}
-        state={state}
-        actions={actions}
-        prefix={item_prefix}
-        dragControls={dragControls}
-      />
-    </Reorder.Item>
   );
 }

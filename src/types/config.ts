@@ -47,6 +47,7 @@ export type TimerConfig = {
   beep_below?: number;
   rest_between_time?: number;
   warnings?: string;
+  open: boolean;
 };
 
 export type SetConfig = {
@@ -60,6 +61,7 @@ export type SetConfig = {
   prepare_time?: number;
   end_whistle?: boolean;
   breadcrumbs?: string[];
+  open: boolean;
 };
 
 export type ConfigEntry = TimerConfig | SetConfig;
