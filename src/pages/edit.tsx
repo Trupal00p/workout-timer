@@ -1,4 +1,5 @@
 import {
+  ArrowPathIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   PlusCircleIcon,
@@ -175,23 +176,20 @@ const Checkbox = ({
   );
 };
 
-const accordionVariants = {
-  open: { opacity: 1 },
-  closed: { height: 0, opacity: 0 },
-};
-
 const Accordion = ({
   summary,
+  right,
   children,
 }: {
   summary: React.ReactNode;
+  right: React.ReactNode;
   children: React.ReactNode;
 }): JSX.Element => {
   const [open, setOpen] = useState(false);
   return (
     <div className="relative">
       <div
-        className="cursor-pointer inline border-solid font-bold"
+        className="cursor-pointer inline font-bold"
         onClick={() => setOpen((o) => !o)}
       >
         {open ? (
@@ -201,6 +199,7 @@ const Accordion = ({
         )}
         {summary}
       </div>
+      <div className="inline float-right">{right}</div>
       {open ? children : null}
     </div>
   );
@@ -219,18 +218,17 @@ const TimerForm = ({
     <div className="border-solid border-black border-2 rounded-lg shadow-lg m-3 p-3 bg-blue-200">
       <Accordion
         summary={
-          <>
-            {getValueByPointer(state.model, `${prefix}/label`)} (Exercise)
-            <span
-              onClick={(event) => {
-                event.preventDefault();
-                actions.onDelete(prefix);
-              }}
-              className="underline cursor-pointer text-red-400 absolute top-0 right-0"
-            >
-              Delete
-            </span>
-          </>
+          <>{getValueByPointer(state.model, `${prefix}/label`)} (Exercise)</>
+        }
+        right={
+          <span
+            onClick={(event) => {
+              actions.onDelete(prefix);
+            }}
+            className="underline cursor-pointer text-red-400 font-bold"
+          >
+            Delete
+          </span>
         }
       >
         <Input
@@ -257,18 +255,19 @@ const TimerForm = ({
         <Input
           type="number"
           name={`${prefix}/count`}
-          label="Loop Count"
+          label="Repeat Count"
           state={state}
           actions={actions}
         />
-
-        <Input
-          type="number"
-          name={`${prefix}/rest_between_time`}
-          label="Rest Between Time (Seconds)"
-          state={state}
-          actions={actions}
-        />
+        {!!getValueByPointer(state.model, `${prefix}/count`) ? (
+          <Input
+            type="number"
+            name={`${prefix}/rest_between_time`}
+            label="Rest Between Time (Seconds)"
+            state={state}
+            actions={actions}
+          />
+        ) : null}
         <Input
           type="text"
           name={`${prefix}/warnings`}
@@ -342,7 +341,7 @@ const SetForm = ({
         />
 
         {entry?.components?.map((c, i) => {
-          const item_prefix = `${prefix}/components.${i}`;
+          const item_prefix = `${prefix}/components/${i}`;
           return (
             <FormLevel
               key={item_prefix}
@@ -439,29 +438,24 @@ export default function Home() {
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ type: "spring" }}
                 >
-                  <form>
-                    <FormLevel
-                      entry={c}
-                      state={state}
-                      actions={actions}
-                      prefix={item_prefix}
-                    />
-                  </form>
+                  <FormLevel
+                    entry={c}
+                    state={state}
+                    actions={actions}
+                    prefix={item_prefix}
+                  />
                 </Reorder.Item>
               );
             })}
+            <Reorder.Item value={null} className="text-center">
+              <Button
+                onClick={() => actions.addTimer("/definition/-")}
+                content="Add Timer"
+                Icon={PlusCircleIcon}
+              />
+            </Reorder.Item>
           </AnimatePresence>
         </Reorder.Group>
-        {/* <Button
-          onClick={actions.addSet}
-          content="Add Set"
-          Icon={PlusCircleIcon}
-        /> */}
-        <Button
-          onClick={() => actions.addTimer("/definition/-")}
-          content="Add Timer"
-          Icon={PlusCircleIcon}
-        />
       </div>
       <div className="border-solid border-2 border-indigo-600 text-center">
         <Button
@@ -470,8 +464,15 @@ export default function Home() {
               definition: [],
             });
           }}
-          content="Reset"
+          content="Clear"
           Icon={TrashIcon}
+        />
+        <Button
+          onClick={() => {
+            actions.setModel(config);
+          }}
+          content="Reset"
+          Icon={ArrowPathIcon}
         />
         <Button onClick={save} content="Start" Icon={PlusCircleIcon} />
       </div>
