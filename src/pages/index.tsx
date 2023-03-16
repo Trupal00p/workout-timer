@@ -114,7 +114,8 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (activeIndex >= compileConfig.length) {
+    console.log(activeIndex,compileConfig.length)
+    if (activeIndex > compileConfig.length) {
       var audio = new Audio("sounds/success-fanfare-trumpets.mp3");
       audio.play();
     }
@@ -167,7 +168,7 @@ export default function Home() {
               );
             })
             .collect()}
-          {activeIndex >= compileConfig.length ? (
+          {activeIndex > compileConfig.length ? (
             <motion.div
               className="border-solid border-2 border-yellow-300 text-center p-5 m-5 drop-shadow-lg rounded-lg bg-white text-5xl mt-20 leading-[5rem]"
               key="complete"
