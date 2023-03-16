@@ -216,7 +216,7 @@ const TimerForm = ({
   actions: actionHandlers;
 }) => {
   return (
-    <div className="border-solid border-black border-2 rounded-lg shadow-lg m-3 p-3">
+    <div className="border-solid border-black border-2 rounded-lg shadow-lg m-3 p-3 bg-blue-200">
       <Accordion
         summary={
           <>
@@ -314,7 +314,7 @@ const SetForm = ({
   actions: { [key: string]: (event: ChangeEvent<HTMLInputElement>) => void };
 }) => {
   return (
-    <div className="border-solid border-black border-2 rounded-lg shadow-lg m-3 p-3">
+    <div className="border-solid border-black border-2 rounded-lg shadow-lg m-3 p-3 bg-green-100">
       <details className="cursor-pointer">
         <summary>
           {getValueByPointer(state.model, `${prefix}/label`)} (Group)
@@ -396,7 +396,7 @@ export default function Home() {
     errors: {},
   });
 
-  const config = useConfig();
+  const [config, encode] = useConfig();
   useEffect(() => {
     if (config) {
       actions.setModel(config);
@@ -404,7 +404,7 @@ export default function Home() {
   }, [config, actions.setModel]);
 
   const save = () => {
-    window.location.assign(`/#${window.btoa(JSON.stringify(state.model))}`);
+    window.location.assign(`/#${encode(state.model)}`);
   };
 
   const onReorder = (components: Array<ConfigEntry>) => {
@@ -414,10 +414,10 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen">
       {/* <div className="border-solid border-2 border-indigo-600">top</div> */}
-      <div className="grow bg-green-100 overflow-auto relative">
+      <div className="grow bg-slate-100 overflow-auto relative">
         <Input
           type="text"
-          name="title"
+          name="/title"
           label="Routine Name"
           state={state}
           actions={actions}

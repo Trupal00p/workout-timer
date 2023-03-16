@@ -65,7 +65,7 @@ const reduceEntry =
       for (const e of repeat(entry, entry.count || 1)) {
         acc = acc.concat(
           entry.components.reduce(
-            reduceEntry([...(breadcrumbs || []), entry.label]),
+            reduceEntry([...breadcrumbs, entry.label]),
             []
           )
         );
@@ -77,7 +77,7 @@ const reduceEntry =
 function compileConfig(config: Config | undefined): CompiledConfigEntry[] {
   return (
     config?.definition
-      .reduce(reduceEntry([config.title]), [])
+      .reduce(reduceEntry([config.title || "[No Title]"]), [])
       .map((e, index) => ({ index, ...e })) || []
   );
 }
@@ -105,7 +105,7 @@ const variants = {
 
 export default function Home() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const config: Config | undefined = useConfig();
+  const [config] = useConfig();
   const [editUrl, setEditUrl] = useState("");
   useEffect(() => {
     setEditUrl(`/edit${window.location.hash}`);
@@ -115,28 +115,29 @@ export default function Home() {
   const next = () =>
     setActiveIndex((v) => Math.min(compiledConfig.length, v + 1));
   const previous = () => setActiveIndex((v) => Math.max(0, v - 1));
-
   return (
     <div className="flex flex-col h-screen">
-      <div className="border-solid border-2 border-indigo-600">
-        <AnimatePresence mode="popLayout">
-          {compiledConfig &&
-            compiledConfig[activeIndex]?.breadcrumbs?.map((crumb) => {
-              return (
-                <motion.span
-                  layout
-                  key={crumb}
-                  initial={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.8, opacity: 0 }}
-                  transition={{ type: "spring", bounce: 0.3 }}
-                >
-                  {crumb}
-                </motion.span>
-              );
-            })}
-        </AnimatePresence>{" "}
+      <div className="border-solid border-2 border-indigo-600 text-center font-bold text-xl p-2">
+        <div>
+          <AnimatePresence mode="popLayout">
+            {compiledConfig &&
+              compiledConfig[activeIndex]?.breadcrumbs?.map((crumb) => {
+                return (
+                  <motion.span
+                    layout
+                    key={crumb}
+                    initial={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{ type: "spring", bounce: 0.3 }}
+                  >
+                    {crumb}
+                  </motion.span>
+                );
+              })}
+          </AnimatePresence>
+        </div>
       </div>
-      <div className="grow bg-lime-100 overflow-hidden relative">
+      <div className="grow bg-slate-100 overflow-hidden relative">
         <AnimatePresence mode="popLayout">
           {lazy(compiledConfig)
             .filter((config) => config.index >= activeIndex)
@@ -160,13 +161,6 @@ export default function Home() {
         </AnimatePresence>
       </div>
       <div className="border-solid border-2 border-indigo-600 text-center">
-        {/* <Button
-          onClick={toStart}
-          content="Start"
-          Icon={ChevronDoubleLeftIcon}
-        /> */}
-
-        {/* <Button onClick={previous} content="previous" Icon={ArrowLeftIcon} /> */}
         <button
           onClick={previous}
           className={`drop-shadow-lg m-2 inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-indigo-500 hover:bg-indigo-600 active:bg-indigo-700  active:drop-shadow-none focus:outline-none`}
