@@ -1,12 +1,18 @@
 import {
   ArrowPathIcon,
+  Bars3Icon,
   ChevronDownIcon,
   ChevronRightIcon,
   PlusCircleIcon,
   TrashIcon,
 } from "@heroicons/react/24/solid";
 import { applyPatch, getValueByPointer } from "fast-json-patch";
-import { motion, AnimatePresence, Reorder } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  Reorder,
+  useDragControls,
+} from "framer-motion";
 import { ChangeEvent, useEffect, useState } from "react";
 import Button from "../components/Button";
 import {
@@ -209,10 +215,12 @@ const TimerForm = ({
   prefix,
   state,
   actions,
+  dragControls,
 }: {
   prefix: string;
   state: FormState;
   actions: actionHandlers;
+  dragControls: any;
 }) => {
   return (
     <div className="border-solid border-black border-2 rounded-lg shadow-lg m-3 p-3 bg-blue-200">
@@ -221,14 +229,22 @@ const TimerForm = ({
           <>{getValueByPointer(state.model, `${prefix}/label`)} (Exercise)</>
         }
         right={
-          <span
-            onClick={(event) => {
-              actions.onDelete(prefix);
-            }}
-            className="underline cursor-pointer text-red-400 font-bold"
-          >
-            Delete
-          </span>
+          <>
+            <span
+              onClick={(event) => {
+                actions.onDelete(prefix);
+              }}
+              className="underline cursor-pointer text-red-400 font-bold"
+            >
+              Delete
+            </span>
+            <span
+              onPointerDown={(event) => dragControls.start(event)}
+              className="ml-10"
+            >
+              <Bars3Icon className="h-5 w-5 cursor-pointe inline" />
+            </span>
+          </>
         }
       >
         <Input
@@ -369,14 +385,23 @@ const FormLevel = ({
   state,
   actions,
   entry,
+  dragControls,
 }: {
   prefix: string;
   state: FormState;
   actions: actionHandlers;
   entry: ConfigEntry;
+  dragControls: any;
 }): JSX.Element => {
   if (entry.kind === EntryKind.Timer) {
-    return <TimerForm prefix={prefix} state={state} actions={actions} />;
+    return (
+      <TimerForm
+        prefix={prefix}
+        state={state}
+        actions={actions}
+        dragControls={dragControls}
+      />
+    );
   } else if (entry.kind === EntryKind.Set) {
     return (
       <SetForm prefix={prefix} state={state} actions={actions} entry={entry} />
@@ -423,39 +448,31 @@ export default function Home() {
         />
         <Reorder.Group
           axis="y"
-          values={state.model.definition || []}
+          values={state.model.definition}
           onReorder={onReorder}
         >
           <AnimatePresence mode="popLayout">
             {state.model.definition?.map((c: ConfigEntry, i: number) => {
               const item_prefix = `/definition/${i}`;
               return (
-                <Reorder.Item
+                <ConfigFormEntry
+                  c={c}
                   key={c.id}
-                  value={c}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ type: "spring" }}
-                >
-                  <FormLevel
-                    entry={c}
-                    state={state}
-                    actions={actions}
-                    prefix={item_prefix}
-                  />
-                </Reorder.Item>
+                  state={state}
+                  actions={actions}
+                  item_prefix={item_prefix}
+                />
               );
             })}
-            <Reorder.Item value={null} className="text-center">
-              <Button
-                onClick={() => actions.addTimer("/definition/-")}
-                content="Add Timer"
-                Icon={PlusCircleIcon}
-              />
-            </Reorder.Item>
           </AnimatePresence>
         </Reorder.Group>
+        <motion.div layout className="text-center">
+          <Button
+            onClick={() => actions.addTimer("/definition/-")}
+            content="Add Timer"
+            Icon={PlusCircleIcon}
+          />
+        </motion.div>
       </div>
       <div className="border-solid border-2 border-indigo-600 text-center">
         <Button
@@ -477,5 +494,38 @@ export default function Home() {
         <Button onClick={save} content="Start" Icon={PlusCircleIcon} />
       </div>
     </div>
+  );
+}
+function ConfigFormEntry({
+  c,
+  state,
+  actions,
+  item_prefix,
+}: {
+  c: ConfigEntry;
+  state: any;
+  actions: any;
+  item_prefix: string;
+}): JSX.Element {
+  const dragControls = useDragControls();
+  return (
+    <Reorder.Item
+      key={c.id}
+      value={c}
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.8 }}
+      transition={{ type: "spring" }}
+      dragListener={false}
+      // dragControls={dragControls}
+    >
+      <FormLevel
+        entry={c}
+        state={state}
+        actions={actions}
+        prefix={item_prefix}
+        dragControls={dragControls}
+      />
+    </Reorder.Item>
   );
 }
