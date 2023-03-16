@@ -328,6 +328,7 @@ const SetForm = ({
   state: FormState;
   actions: { [key: string]: (event: ChangeEvent<HTMLInputElement>) => void };
 }) => {
+  const dragControls = useDragControls();
   return (
     <div className="border-solid border-black border-2 rounded-lg shadow-lg m-3 p-3 bg-green-100">
       <details className="cursor-pointer">
@@ -365,6 +366,7 @@ const SetForm = ({
               state={state}
               actions={actions}
               prefix={item_prefix}
+              dragControls={dragControls}
             />
           );
         })}
