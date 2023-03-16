@@ -123,6 +123,7 @@ const Input = ({
   state,
   actions,
   type = "text",
+  helpText,
   ...props
 }: {
   name: string;
@@ -130,6 +131,7 @@ const Input = ({
   state: FormState;
   actions: { [key: string]: (event: ChangeEvent<HTMLInputElement>) => void };
   type: string;
+  helpText?: string;
 }) => {
   return (
     <div className="m-3">
@@ -148,6 +150,9 @@ const Input = ({
         onBlur={actions.onBlur}
         {...props}
       />
+      {helpText ? (
+        <div className="text-indigo-600 text-xs m-1">{helpText}</div>
+      ) : null}
     </div>
   );
 };
@@ -156,6 +161,7 @@ const Checkbox = ({
   label,
   state,
   actions,
+  helpText,
   type = "text",
   ...props
 }: {
@@ -164,21 +170,27 @@ const Checkbox = ({
   state: FormState;
   actions: { [key: string]: (event: ChangeEvent<HTMLInputElement>) => void };
   type: string;
+  helpText?: string;
 }) => {
   return (
-    <div className="m-3 flex flex-row items-center justify-start">
-      <input
-        type={type}
-        name={name}
-        id={name}
-        checked={getValueByPointer(state.model, name) || false}
-        onChange={actions.onCheckboxChange}
-        onBlur={actions.onBlur}
-        {...props}
-      />
-      <label className="ml-2 font-bold" htmlFor={name}>
-        {label}
-      </label>
+    <div className="m-3">
+      <div className="flex flex-row items-center justify-start">
+        <input
+          type={type}
+          name={name}
+          id={name}
+          checked={getValueByPointer(state.model, name) || false}
+          onChange={actions.onCheckboxChange}
+          onBlur={actions.onBlur}
+          {...props}
+        />
+        <label className="ml-2 font-bold" htmlFor={name}>
+          {label}
+        </label>
+      </div>
+      {helpText ? (
+        <div className="text-indigo-600 text-xs m-1">{helpText}</div>
+      ) : null}
     </div>
   );
 };
@@ -250,6 +262,7 @@ const TimerForm = ({
           label="Name"
           state={state}
           actions={actions}
+          helpText="The name for this exercise. This text will be announced at the beginning of the exercise."
         />
         <Input
           type="number"
@@ -257,13 +270,15 @@ const TimerForm = ({
           label="Duration (Seconds)"
           state={state}
           actions={actions}
+          helpText="Duration of this exercise in seconds."
         />
         <Input
           type="number"
           name={`${prefix}/prepare_time`}
-          label="Prep Time (Seconds)"
+          label="Preparation Time (Seconds)"
           state={state}
           actions={actions}
+          helpText="Duration of preparation timer that will be added before this exercise begins."
         />
         <Input
           type="number"
@@ -271,6 +286,7 @@ const TimerForm = ({
           label="Repeat Count"
           state={state}
           actions={actions}
+          helpText="Optionally repeat this timer this many times."
         />
         {!!getValueByPointer(state.model, `${prefix}/count`) ? (
           <Input
@@ -279,6 +295,7 @@ const TimerForm = ({
             label="Rest Between Time (Seconds)"
             state={state}
             actions={actions}
+            helpText="Duration of the rest timers that are added between each repetition of this exercise."
           />
         ) : null}
         <Input
@@ -287,6 +304,7 @@ const TimerForm = ({
           label="Call Out Times"
           state={state}
           actions={actions}
+          helpText='A comma separated list of times that will call out "X more seconds" while the timer is running. Example: "30, 10, 5"'
         />
         <Input
           type="number"
@@ -294,6 +312,7 @@ const TimerForm = ({
           label="Count Down Last X Seconds"
           state={state}
           actions={actions}
+          helpText="A beeper will sound every second at the end of this timer when there are this many seconds remaining."
         />
         <Checkbox
           type="checkbox"
@@ -301,6 +320,7 @@ const TimerForm = ({
           label="Play End Sound"
           state={state}
           actions={actions}
+          helpText="Play a whistle sound when this exercise completes."
         />
         <Checkbox
           type="checkbox"
@@ -308,6 +328,7 @@ const TimerForm = ({
           label="Auto Next"
           state={state}
           actions={actions}
+          helpText="Automatically progress to the next exercise when this one completes."
         />
       </Accordion>
     </div>
@@ -337,6 +358,7 @@ const SetForm = ({
           label="Name"
           state={state}
           actions={actions}
+          helpText="The name for this exercise. This text will be announced at the beginning"
         />
         <Input
           type="number"
@@ -431,6 +453,7 @@ export default function Home() {
           type="text"
           name="/title"
           label="Routine Name"
+          helpText="Enter a name for this set of exercises."
           state={state}
           actions={actions}
         />
