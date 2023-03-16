@@ -9,7 +9,7 @@ export type CompiledTimerConfig = {
   kind: EntryKind.Timer | EntryKind.Prepare | EntryKind.Rest;
   id: string;
   label: string;
-  duration_seconds?: number;
+  duration_seconds: number;
   auto_next?: boolean;
   count?: number;
   prepare_time?: number;

@@ -16,7 +16,6 @@ import {
 } from "../types/config";
 import { lazy } from "../util/lazy";
 import { repeat } from "../util/repeat";
-
 import { randStr } from "@/util/randStr";
 
 const reduceEntry =
@@ -37,7 +36,7 @@ const reduceEntry =
         });
       }
       // add timer entries
-      for (const e of repeat(entry, entry.count || 1)) {
+      for (const [count, e] of repeat(entry, entry.count || 1)) {
         acc.push({
           ...e,
           breadcrumbs,
@@ -47,19 +46,19 @@ const reduceEntry =
             .map((t) => parseInt(t, 10))
             .filter((t) => !!t && !isNaN(t)),
         });
-        acc.push({
-          kind: EntryKind.Rest,
-          id: randStr("rest_"),
-          label: `${entry.rest_between_time} second rest`,
-          duration_seconds: entry.rest_between_time,
-          end_whistle: false,
-          auto_next: true,
-          beep_below: 3,
-          breadcrumbs,
-        });
+        if (entry.count && entry.rest_between_time && count < entry.count) {
+          acc.push({
+            kind: EntryKind.Rest,
+            id: randStr("rest_"),
+            label: `${entry.rest_between_time} second rest`,
+            duration_seconds: entry.rest_between_time,
+            end_whistle: false,
+            auto_next: true,
+            beep_below: 3,
+            breadcrumbs,
+          });
+        }
       }
-      // remove last rest entry
-      acc.pop();
     } else if (entry.kind === EntryKind.Set && entry.components) {
       // acc.push(entry);
       // recurse into sets
