@@ -32,7 +32,7 @@ const reduceEntry =
           beep_below: 3,
           auto_next: true,
           breadcrumbs,
-          id: randStr("prep_"),
+          id: randStr(EntryKind.Prepare),
         });
       }
       // add timer entries
@@ -49,7 +49,7 @@ const reduceEntry =
         if (entry.count && entry.rest_between_time && count < entry.count) {
           acc.push({
             kind: EntryKind.Rest,
-            id: randStr("rest_"),
+            id: randStr(EntryKind.Rest),
             label: `${entry.rest_between_time} second rest`,
             duration_seconds: entry.rest_between_time,
             end_whistle: false,

@@ -64,7 +64,7 @@ const actionHandlers = {
   },
   onDuplicate: (path: string) => (draft: FormState) => {
     let config: ConfigEntry = cloneDeep(getValueByPointer(draft.model, path));
-    config.id = randStr();
+    config.id = randStr(config.kind);
     applyOperation(draft.model, {
       op: "add",
       path: path,
@@ -326,7 +326,7 @@ export default function Home() {
   const save = () => {
     let id = state.model.id;
     if (!id) {
-      id = randStr();
+      id = randStr('config');
       actions.onChange("/id", id);
     }
 
