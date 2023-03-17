@@ -33,7 +33,7 @@ function* allOf(iter: Iterable<any>) {
   }
 }
 
-export function lazy(arr: Array<any>) {
+export function lazy(arr: Iterable<any>) {
   const api = {
     previousGenerator: allOf(arr),
     map(mapFunc: mappingFunction) {

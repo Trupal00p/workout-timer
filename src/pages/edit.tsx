@@ -1,3 +1,4 @@
+import { generateObjectPaths } from "@/util/generateObjectPaths";
 import { lazy } from "@/util/lazy";
 import {
   ArrowPathIcon,
@@ -11,7 +12,6 @@ import {
   applyReducer,
   getValueByPointer,
 } from "fast-json-patch";
-import { flatten } from "flat";
 import { AnimatePresence, motion, Reorder } from "framer-motion";
 import { cloneDeep } from "lodash";
 import { ChangeEvent, useEffect } from "react";
@@ -74,11 +74,11 @@ const actionHandlers = {
   setOpenAll:
     (newOpen = false) =>
     (draft: FormState) => {
-      lazy(Object.keys(flatten(draft.model, { delimiter: "/" })))
+      lazy(generateObjectPaths(draft.model))
         .filter((k: string) => k.endsWith("open"))
         .map((k) => ({
           op: "replace",
-          path: "/" + k,
+          path: k,
           value: newOpen,
         }))
         .reduce(applyReducer, draft.model);
@@ -326,7 +326,7 @@ export default function Home() {
   const save = () => {
     let id = state.model.id;
     if (!id) {
-      id = randStr('config');
+      id = randStr("config");
       actions.onChange("/id", id);
     }
 
