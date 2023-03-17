@@ -68,7 +68,7 @@ export type SetConfig = {
 export type ConfigEntry = TimerConfig | SetConfig;
 
 export type Config = {
-  voice: string;
   title: string;
+  id?: string;
   definition: ConfigEntry[];
 };

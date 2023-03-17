@@ -1,91 +1,102 @@
+import { lazy } from "@/util/lazy";
 import {
   ArrowPathIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
+  BookmarkIcon,
+  MinusCircleIcon,
   PlusCircleIcon,
   TrashIcon,
-} from "@heroicons/react/24/solid";
-import { applyPatch, getValueByPointer } from "fast-json-patch";
+} from "@heroicons/react/24/outline";
+import {
+  applyOperation,
+  applyReducer,
+  getValueByPointer,
+} from "fast-json-patch";
+import { flatten } from "flat";
 import { AnimatePresence, motion, Reorder } from "framer-motion";
+import { cloneDeep } from "lodash";
 import { ChangeEvent, useEffect } from "react";
+import { Accordion } from "../components/Accordion";
 import Button from "../components/Button";
+import { Checkbox, Input } from "../components/Fields";
 import { ConfigEntry, EntryKind, SetConfig } from "../types/config";
+import { actionHandlers, FormModel, FormState } from "../types/forms";
 import { useActionHandlerReducer } from "../util/actionHandlerReducer";
 import { randStr } from "../util/randStr";
 import { useConfig } from "../util/useConfig";
-
-type validator = (val: any, model: { [key: string]: any }) => string;
-type validationErrors = { [key: string]: string };
-type FormModel = { [key: string]: any };
-type actionHandlers = {
-  [key: string]: (...args: any[]) => void;
-};
-type FormState = {
-  model: FormModel;
-  touched: { [key: string]: any };
-  errors: validationErrors;
-};
 
 const actionHandlers = {
   onInputChange:
     (event: ChangeEvent<HTMLInputElement>) =>
     (draft: FormState): void => {
-      applyPatch(draft.model, [
-        {
-          op: "replace",
-          path: event.target.name,
-          value: event.target.value || undefined,
-        },
-      ]);
+      applyOperation(draft.model, {
+        op: "replace",
+        path: event.target.name,
+        value: event.target.value || undefined,
+      });
     },
   onCheckboxChange:
     (event: ChangeEvent<HTMLInputElement>) =>
     (draft: FormState): void => {
-      applyPatch(draft.model, [
-        {
-          op: "replace",
-          path: event.target.name,
-          value: event.target.checked,
-        },
-      ]);
+      applyOperation(draft.model, {
+        op: "replace",
+        path: event.target.name,
+        value: event.target.checked,
+      });
     },
   onChange: (path: string, value: any) => (draft: FormState) => {
-    applyPatch(draft.model, [
-      {
-        op: "replace",
-        path,
-        value,
-      },
-    ]);
-  },
-  onDelete: (path: string) => (draft: FormState) => {
-    applyPatch(draft.model, [
-      {
-        op: "remove",
-        path: path,
-      },
-    ]);
+    applyOperation(draft.model, {
+      op: "replace",
+      path,
+      value,
+    });
   },
   onBlur:
     (event: ChangeEvent<HTMLInputElement>) =>
     (draft: FormState): void => {
-      draft.touched[event.target.name] = true;
+      // console.log(draft.model, event.target.name);
+      // draft.touched[event.target.name] = true;
+    },
+  onDelete: (path: string) => (draft: FormState) => {
+    applyOperation(draft.model, {
+      op: "remove",
+      path: path,
+    });
+  },
+  onDuplicate: (path: string) => (draft: FormState) => {
+    let config: ConfigEntry = cloneDeep(getValueByPointer(draft.model, path));
+    config.id = randStr();
+    applyOperation(draft.model, {
+      op: "add",
+      path: path,
+      value: config,
+    });
+  },
+  setOpenAll:
+    (newOpen = false) =>
+    (draft: FormState) => {
+      lazy(Object.keys(flatten(draft.model, { delimiter: "/" })))
+        .filter((k: string) => k.endsWith("open"))
+        .map((k) => ({
+          op: "replace",
+          path: "/" + k,
+          value: newOpen,
+        }))
+        .reduce(applyReducer, draft.model);
     },
   setModel: (model: FormModel) => (draft: FormState) => {
     draft.model = model;
   },
   addTimer: (path: string) => (draft: FormState) => {
-    applyPatch(draft.model, [
-      {
-        op: "add",
-        path: path,
-        value: {
-          kind: EntryKind.Timer,
-          id: randStr(EntryKind.Timer),
-          auto_next: true,
-        },
+    applyOperation(draft.model, {
+      op: "add",
+      path: path,
+      value: {
+        kind: EntryKind.Timer,
+        id: randStr(EntryKind.Timer),
+        auto_next: true,
+        open: true,
       },
-    ]);
+    });
   },
   addSet: () => (draft: FormState) => {
     draft.model.definition.push({
@@ -93,127 +104,6 @@ const actionHandlers = {
       id: randStr(EntryKind.Set),
     });
   },
-  onValidate:
-    (validators: { [key: string]: Array<validator> }) => (draft: FormState) => {
-      draft.errors = Object.entries(validators).reduce(
-        (acc: validationErrors, [key, validator]: any) => {
-          acc[key] = validator(draft.model[key], draft.model);
-          return acc;
-        },
-        {}
-      );
-    },
-};
-
-const Input = ({
-  name,
-  label,
-  state,
-  actions,
-  type = "text",
-  helpText,
-  ...props
-}: {
-  name: string;
-  label: string;
-  state: FormState;
-  actions: { [key: string]: (event: ChangeEvent<HTMLInputElement>) => void };
-  type: string;
-  helpText?: string;
-}) => {
-  return (
-    <div className="m-3">
-      <div>
-        <label className="font-bold" htmlFor={name}>
-          {label}
-        </label>
-      </div>
-      <input
-        className="w-full rounded-lg"
-        type={type}
-        name={name}
-        id={name}
-        value={getValueByPointer(state.model, name) || ""}
-        onChange={actions.onInputChange}
-        onBlur={actions.onBlur}
-        {...props}
-      />
-      {helpText ? (
-        <div className="text-indigo-600 text-xs m-1">{helpText}</div>
-      ) : null}
-    </div>
-  );
-};
-const Checkbox = ({
-  name,
-  label,
-  state,
-  actions,
-  helpText,
-  type = "text",
-  ...props
-}: {
-  name: string;
-  label: string;
-  state: FormState;
-  actions: { [key: string]: (event: ChangeEvent<HTMLInputElement>) => void };
-  type: string;
-  helpText?: string;
-}) => {
-  return (
-    <div className="m-3">
-      <div className="flex flex-row items-center justify-start">
-        <input
-          type={type}
-          name={name}
-          id={name}
-          checked={getValueByPointer(state.model, name) || false}
-          onChange={actions.onCheckboxChange}
-          onBlur={actions.onBlur}
-          {...props}
-        />
-        <label className="ml-2 font-bold" htmlFor={name}>
-          {label}
-        </label>
-      </div>
-      {helpText ? (
-        <div className="text-indigo-600 text-xs m-1">{helpText}</div>
-      ) : null}
-    </div>
-  );
-};
-
-const Accordion = ({
-  summary,
-  right,
-  children,
-  open,
-  setOpen,
-}: {
-  open: boolean;
-  setOpen: (o: boolean) => void;
-  summary: React.ReactNode;
-  right: React.ReactNode;
-  children: React.ReactNode;
-}): JSX.Element => {
-  // const [open, setOpen] = useState(false);
-  return (
-    <div className="relative">
-      <div
-        className="cursor-pointer inline font-bold"
-        onClick={() => setOpen(!open)}
-      >
-        {open ? (
-          <ChevronDownIcon className="h-4 w-4 inline mr-2" />
-        ) : (
-          <ChevronRightIcon className="h-4 w-4 inline mr-2" />
-        )}
-        {summary}
-      </div>
-      <div className="inline float-right">{right}</div>
-      {open ? children : null}
-    </div>
-  );
 };
 
 const TimerForm = ({
@@ -230,18 +120,26 @@ const TimerForm = ({
       <Accordion
         open={getValueByPointer(state.model, `${prefix}/open`)}
         setOpen={(value) => actions.onChange(`${prefix}/open`, value)}
-        summary={
-          <>{getValueByPointer(state.model, `${prefix}/label`)} (Exercise)</>
-        }
+        summary={<>{getValueByPointer(state.model, `${prefix}/label`)}</>}
         right={
-          <span
-            onClick={(event) => {
-              actions.onDelete(prefix);
-            }}
-            className="underline cursor-pointer text-red-400 font-bold"
-          >
-            Delete
-          </span>
+          <>
+            <span
+              onClick={(event) => {
+                actions.onDuplicate(prefix);
+              }}
+              className="mr-3 underline cursor-pointer text-slate-400 font-bold"
+            >
+              Duplicate
+            </span>
+            <span
+              onClick={(event) => {
+                actions.onDelete(prefix);
+              }}
+              className="underline cursor-pointer text-red-400 font-bold"
+            >
+              Delete
+            </span>
+          </>
         }
       >
         <Input
@@ -414,8 +312,6 @@ export default function Home() {
     model: {
       definition: [],
     },
-    touched: {},
-    errors: {},
   });
 
   const [config, encode] = useConfig();
@@ -424,9 +320,23 @@ export default function Home() {
       actions.setModel(config);
     }
   }, [config, actions.setModel]);
-
-  const save = () => {
+  const start = () => {
     window.location.assign(`/#${encode(state.model)}`);
+  };
+  const save = () => {
+    let id = state.model.id;
+    if (!id) {
+      id = randStr();
+      actions.onChange("/id", id);
+    }
+
+    const savedConfigs: { [key: string]: any } = JSON.parse(
+      window.localStorage.getItem("timer-configs") || "{}"
+    );
+
+    savedConfigs[id] = state.model;
+
+    window.localStorage.setItem("timer-configs", JSON.stringify(savedConfigs));
   };
 
   const onReorder = (components: Array<ConfigEntry>) => {
@@ -446,6 +356,25 @@ export default function Home() {
             state={state}
             actions={actions}
           />
+          <div className="m-3 text-right">
+            <span
+              className=" mr-3 underline text-slate-800 font-bold cursor-pointer"
+              onClick={() => actions.setOpenAll(false)}
+            >
+              <MinusCircleIcon
+                title="outline"
+                className="h-5 w-5 mr-2 inline"
+              />
+              <span>Collapse All</span>
+            </span>
+            <span
+              className="underline text-slate-800 font-bold cursor-pointer "
+              onClick={() => actions.setOpenAll(true)}
+            >
+              <PlusCircleIcon title="outline" className="h-5 w-5 mr-2 inline" />
+              <span>Expand All</span>
+            </span>
+          </div>
           <Reorder.Group
             axis="y"
             values={state.model.definition}
@@ -501,7 +430,8 @@ export default function Home() {
           content="Reset"
           Icon={ArrowPathIcon}
         />
-        <Button onClick={save} content="Start" Icon={PlusCircleIcon} />
+        <Button onClick={start} content="Start" Icon={PlusCircleIcon} />
+        <Button onClick={save} content="Save" Icon={BookmarkIcon} />
       </div>
     </div>
   );

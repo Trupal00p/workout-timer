@@ -1,8 +1,8 @@
 Arguments: 
-  /usr/bin/node /usr/local/bin/yarn add usehooks
+  /usr/bin/node /usr/local/bin/yarn add -D @types/deepdash
 
 PATH: 
-  /home/dave/.vscode-server/bin/92da9481c0904c6adfe372c12da3b7748d74bdcb/bin/remote-cli:/home/dave/.local/bin:/home/dave/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/PuTTY/:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/ProgramData/DockerDesktop/version-bin:/mnt/c/Users/davet/scoop/shims:/mnt/c/Users/davet/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/davet/AppData/Local/Programs/Microsoft VS Code/bin:/snap/bin
+  /home/dave/.vscode-server/bin/5e805b79fcb6ba4c2d23712967df89a089da575b/bin/remote-cli:/home/dave/.local/bin:/home/dave/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/PuTTY/:/mnt/c/Program Files/Docker/Docker/resources/bin:/mnt/c/ProgramData/DockerDesktop/version-bin:/mnt/c/Users/davet/scoop/shims:/mnt/c/Users/davet/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/davet/AppData/Local/Programs/Microsoft VS Code/bin:/snap/bin
 
 Yarn version: 
   1.22.19
@@ -14,7 +14,7 @@ Platform:
   linux x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/usehooks: Not found
+  Error: https://registry.yarnpkg.com/@types%2fdeepdash: Not found
       at Request.params.callback [as _callback] (/usr/local/lib/node_modules/yarn/lib/cli.js:66145:18)
       at Request.self.callback (/usr/local/lib/node_modules/yarn/lib/cli.js:140890:22)
       at Request.emit (node:events:513:28)
@@ -42,15 +42,24 @@ npm manifest:
       "@types/node": "18.15.0",
       "@types/react": "18.0.28",
       "@types/react-dom": "18.0.11",
+      "deepdash": "^5.3.9",
       "eslint": "8.36.0",
       "eslint-config-next": "13.2.4",
+      "fast-json-patch": "^3.1.1",
+      "flat": "^5.0.2",
+      "framer-motion": "^10.2.5",
       "immer": "^9.0.19",
+      "jsoncrush": "^1.1.8",
+      "lodash": "^4.17.21",
       "next": "13.2.4",
       "react": "18.2.0",
       "react-dom": "18.2.0",
-      "typescript": "4.9.5"
+      "typescript": "4.9.5",
+      "usehooks-ts": "^2.9.1"
     },
     "devDependencies": {
+      "@tailwindcss/forms": "^0.5.3",
+      "@types/lodash": "^4.14.191",
       "autoprefixer": "^10.4.14",
       "postcss": "^8.4.21",
       "tailwindcss": "^3.2.7"
@@ -71,6 +80,18 @@ Lockfile:
     integrity sha512-xwII0//EObnq89Ji5AKYQaRYiW/nZ3llSv29d49IuxPhKbtJoLP+9QUUZ4nVragQVtaVGeZrpB+ZtG/Pdy/POw==
     dependencies:
       regenerator-runtime "^0.13.11"
+  
+  "@emotion/is-prop-valid@^0.8.2":
+    version "0.8.8"
+    resolved "https://registry.yarnpkg.com/@emotion/is-prop-valid/-/is-prop-valid-0.8.8.tgz#db28b1c4368a259b60a97311d6a952d4fd01ac1a"
+    integrity sha512-u5WtneEAr5IDG2Wv65yhunPSMLIpuKsbuOktRojfrEiEvRyC85LgPMZI63cr7NUqT8ZIGdSVg8ZKGxIug4lXcA==
+    dependencies:
+      "@emotion/memoize" "0.7.4"
+  
+  "@emotion/memoize@0.7.4":
+    version "0.7.4"
+    resolved "https://registry.yarnpkg.com/@emotion/memoize/-/memoize-0.7.4.tgz#19bf0f5af19149111c40d98bb0cf82119f5d9eeb"
+    integrity sha512-Ja/Vfqe3HpuzRsG1oBtWTHk2PGZ7GR+2Vz5iYGelAw8dx32K0y7PjVuxK6z1nMpZOqAFsRUPCkK1YjJ56qJlgw==
   
   "@eslint-community/eslint-utils@^4.2.0":
     version "4.2.0"
@@ -250,10 +271,22 @@ Lockfile:
     dependencies:
       tslib "^2.4.0"
   
+  "@tailwindcss/forms@^0.5.3":
+    version "0.5.3"
+    resolved "https://registry.yarnpkg.com/@tailwindcss/forms/-/forms-0.5.3.tgz#e4d7989686cbcaf416c53f1523df5225332a86e7"
+    integrity sha512-y5mb86JUoiUgBjY/o6FJSFZSEttfb3Q5gllE4xoKjAAD+vBrnIhE4dViwUuow3va8mpH4s9jyUbUbrRGoRdc2Q==
+    dependencies:
+      mini-svg-data-uri "^1.2.3"
+  
   "@types/json5@^0.0.29":
     version "0.0.29"
     resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
     integrity sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==
+  
+  "@types/lodash@^4.14.191":
+    version "4.14.191"
+    resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.191.tgz#09511e7f7cba275acd8b419ddac8da9a6a79e2fa"
+    integrity sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==
   
   "@types/node@18.15.0":
     version "18.15.0"
@@ -656,6 +689,14 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/deep-is/-/deep-is-0.1.4.tgz#a6f2dce612fadd2ef1f519b73551f17e85199831"
     integrity sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==
   
+  deepdash@^5.3.9:
+    version "5.3.9"
+    resolved "https://registry.yarnpkg.com/deepdash/-/deepdash-5.3.9.tgz#2aa92570d7b1787ed281e2fafe0be24df00ddfe4"
+    integrity sha512-GRzJ0q9PDj2T+J2fX+b+TlUa2NlZ11l6vJ8LHNKVGeZ8CfxCuJaCychTq07iDRTvlfO8435jlvVS1QXBrW9kMg==
+    dependencies:
+      lodash "^4.17.21"
+      lodash-es "^4.17.21"
+  
   define-lazy-prop@^2.0.0:
     version "2.0.0"
     resolved "https://registry.yarnpkg.com/define-lazy-prop/-/define-lazy-prop-2.0.0.tgz#3f7ae421129bcaaac9bc74905c98a0009ec9ee7f"
@@ -1042,6 +1083,11 @@ Lockfile:
       merge2 "^1.3.0"
       micromatch "^4.0.4"
   
+  fast-json-patch@^3.1.1:
+    version "3.1.1"
+    resolved "https://registry.yarnpkg.com/fast-json-patch/-/fast-json-patch-3.1.1.tgz#85064ea1b1ebf97a3f7ad01e23f9337e72c66947"
+    integrity sha512-vf6IHUX2SBcA+5/+4883dsIjpBTqmfBjmYiWK1savxQmFk4JfBMLa7ynTYOs1Rolp/T1betJxHiGD3g1Mn8lUQ==
+  
   fast-json-stable-stringify@^2.0.0:
     version "2.1.0"
     resolved "https://registry.yarnpkg.com/fast-json-stable-stringify/-/fast-json-stable-stringify-2.1.0.tgz#874bf69c6f404c2b5d99c481341399fd55892633"
@@ -1089,6 +1135,11 @@ Lockfile:
       flatted "^3.1.0"
       rimraf "^3.0.2"
   
+  flat@^5.0.2:
+    version "5.0.2"
+    resolved "https://registry.yarnpkg.com/flat/-/flat-5.0.2.tgz#8ca6fe332069ffa9d324c327198c598259ceb241"
+    integrity sha512-b6suED+5/3rTpUBdG1gupIl8MPFCAMA0QXwmljLhvCUKcUvdE4gWky9zpuGCcXHOsz4J9wPGNWq6OKpmIzz3hQ==
+  
   flatted@^3.1.0:
     version "3.2.7"
     resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.7.tgz#609f39207cb614b89d0765b477cb2d437fbf9787"
@@ -1105,6 +1156,15 @@ Lockfile:
     version "4.2.0"
     resolved "https://registry.yarnpkg.com/fraction.js/-/fraction.js-4.2.0.tgz#448e5109a313a3527f5a3ab2119ec4cf0e0e2950"
     integrity sha512-MhLuK+2gUcnZe8ZHlaaINnQLl0xRIGRfcGk2yl8xoQAfHrSsL3rYu6FCmBdkdbhc9EPlwyGHewaRsvwRMJtAlA==
+  
+  framer-motion@^10.2.5:
+    version "10.2.5"
+    resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-10.2.5.tgz#98ea6080fc0a6a6899afa4d238c45df55be7f62f"
+    integrity sha512-8CoKYlWK5ICv26LUAqhbU3y7LZ4u1FLFarYBO9KIjUVTM7XQE010HBka68ymIpnr6VavPp/gcMw8MorpTz4QOQ==
+    dependencies:
+      tslib "^2.4.0"
+    optionalDependencies:
+      "@emotion/is-prop-valid" "^0.8.2"
   
   fs.realpath@^1.0.0:
     version "1.0.0"
@@ -1564,6 +1624,11 @@ Lockfile:
     dependencies:
       minimist "^1.2.0"
   
+  jsoncrush@^1.1.8:
+    version "1.1.8"
+    resolved "https://registry.yarnpkg.com/jsoncrush/-/jsoncrush-1.1.8.tgz#5dd9389df1979592df8c89ab99ba69b029a030be"
+    integrity sha512-lvIMGzMUA0fjuqwNcxlTNRq2bibPZ9auqT/LyGdlR5hvydJtA/BasSgkx4qclqTKVeTidrJvsS/oVjlTCPQ4Nw==
+  
   "jsx-ast-utils@^2.4.1 || ^3.0.0", jsx-ast-utils@^3.3.3:
     version "3.3.3"
     resolved "https://registry.yarnpkg.com/jsx-ast-utils/-/jsx-ast-utils-3.3.3.tgz#76b3e6e6cece5c69d49a5792c3d01bd1a0cdc7ea"
@@ -1604,10 +1669,20 @@ Lockfile:
     dependencies:
       p-locate "^5.0.0"
   
+  lodash-es@^4.17.21:
+    version "4.17.21"
+    resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.21.tgz#43e626c46e6591b7750beb2b50117390c609e3ee"
+    integrity sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==
+  
   lodash.merge@^4.6.2:
     version "4.6.2"
     resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.2.tgz#558aa53b43b661e1925a0afdfa36a9a1085fe57a"
     integrity sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==
+  
+  lodash@^4.17.21:
+    version "4.17.21"
+    resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
+    integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
   
   loose-envify@^1.1.0, loose-envify@^1.4.0:
     version "1.4.0"
@@ -1635,6 +1710,11 @@ Lockfile:
     dependencies:
       braces "^3.0.2"
       picomatch "^2.3.1"
+  
+  mini-svg-data-uri@^1.2.3:
+    version "1.4.4"
+    resolved "https://registry.yarnpkg.com/mini-svg-data-uri/-/mini-svg-data-uri-1.4.4.tgz#8ab0aabcdf8c29ad5693ca595af19dd2ead09939"
+    integrity sha512-r9deDe9p5FJUPZAk3A59wGH7Ii9YrjjWw0jmw/liSbHl2CHiyXj6FcDXDu2K3TjVAXqiJdaw3xxwlZZr9E6nHg==
   
   minimatch@^3.0.4, minimatch@^3.0.5, minimatch@^3.1.1, minimatch@^3.1.2:
     version "3.1.2"
@@ -2329,6 +2409,11 @@ Lockfile:
     integrity sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==
     dependencies:
       punycode "^2.1.0"
+  
+  usehooks-ts@^2.9.1:
+    version "2.9.1"
+    resolved "https://registry.yarnpkg.com/usehooks-ts/-/usehooks-ts-2.9.1.tgz#953d3284851ffd097432379e271ce046a8180b37"
+    integrity sha512-2FAuSIGHlY+apM9FVlj8/oNhd+1y+Uwv5QNkMQz1oSfdHk4PXo1qoCw9I5M7j0vpH8CSWFJwXbVPeYDjLCx9PA==
   
   util-deprecate@^1.0.2:
     version "1.0.2"

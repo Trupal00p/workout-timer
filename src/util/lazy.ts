@@ -1,3 +1,7 @@
+type mappingFunction = (x: any) => any;
+type filteringFunction = (x: any) => boolean;
+type reducingFunction = (acc: any, x: any, i: number) => any;
+
 function* take(iter: Iterable<any>, count: number) {
   for (const x of iter) {
     if (count-- <= 0) {
@@ -7,16 +11,12 @@ function* take(iter: Iterable<any>, count: number) {
   }
 }
 
-type mappingFunction = (x: any) => any;
-
 function* map(iter: Iterable<any>, func: mappingFunction) {
   for (const x of iter) {
     // console.log(`map called`);
     yield func(x);
   }
 }
-
-type filteringFunction = (x: any) => boolean;
 
 function* filter(iter: Iterable<any>, filterFunc: filteringFunction) {
   for (const x of iter) {
@@ -47,6 +47,14 @@ export function lazy(arr: Array<any>) {
     take(count: number) {
       this.previousGenerator = take(this.previousGenerator, count);
       return this;
+    },
+    reduce(reducer: reducingFunction, accumulator: any) {
+      let index = 0;
+      for (const x of this.previousGenerator) {
+        accumulator = reducer(accumulator, x, index);
+        index++;
+      }
+      return accumulator;
     },
     collect() {
       return [...this.previousGenerator];
