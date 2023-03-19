@@ -8,8 +8,8 @@ import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 //   }
 // }
 
-export type ActionHandler<T> = (...args: any[]) => (draft: T) => T;
-export type ActionHandlers<T> = { [key: string]: ActionHandler<T> };
+export type ActionHandler = (...args: any[]) => (draft: T) => T;
+export type ActionHandlers= { [key: string]: ActionHandler};
 export type Action = {
   type: string;
   data: Parameters<any>;
@@ -34,7 +34,7 @@ export type ThunkDispatcher = {
 // type Dispatch=
 // creates a reducer from the action handlers definitions
 export const actionHandlersToReducer =
-  (actionHandlers: ActionHandlers<any>, getInitialState?: () => Object) =>
+  (actionHandlers: ActionHandlers, getInitialState?: () => Object) =>
   (state: object, action: Action) => {
     if (!state && getInitialState) state = getInitialState();
     const recipe = actionHandlers[action.type];
@@ -43,7 +43,7 @@ export const actionHandlersToReducer =
 
 // creates an object of action functions to match the defined action handlers
 const actionHandlersToActions = (
-  actionHandlers: ActionHandlers<any>,
+  actionHandlers: ActionHandlers,
   dispatch: (action: Action) => void
 ): ActionDispatchers => {
   return Object.keys(actionHandlers).reduce(
@@ -61,7 +61,7 @@ const actionHandlersToActions = (
 
 // hook to bring it all together and make available inside components
 export const useActionHandlerReducer = (
-  actionHandlers: ActionHandlers<any>,
+  actionHandlers: ActionHandlers,
   initialState: any,
   initializeState?: () => any,
   saveState?: (state: any) => void
