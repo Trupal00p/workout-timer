@@ -21,9 +21,8 @@ import { Checkbox, Input } from "../components/Fields";
 import { ConfigEntry, EntryKind, SetConfig } from "../types/config";
 import { FormState } from "../types/forms";
 import {
-  useActionHandlerReducer,
-  ActionHandlers,
   ActionDispatchers,
+  useActionHandlerReducer,
 } from "../util/actionHandlerReducer";
 import { randStr } from "../util/randStr";
 import { encode, useConfig } from "../util/useConfig";
