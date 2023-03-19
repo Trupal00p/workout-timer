@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { Config } from "../types/config";
 import JSONCrush from "jsoncrush";
 
+export const encode = (config: Config): string => {
+  return encodeURIComponent(JSONCrush.crush(JSON.stringify(config)));
+};
+
 export function useConfig(): [Config | undefined, (x: Config) => string] {
   const [config, setConfig] = useState<Config>();
   useEffect(() => {
@@ -14,10 +18,6 @@ export function useConfig(): [Config | undefined, (x: Config) => string] {
       console.log(e);
     }
   }, [setConfig]);
-
-  const encode = (config: Config): string => {
-    return encodeURIComponent(JSONCrush.crush(JSON.stringify(config)));
-  };
 
   return [config, encode];
 }

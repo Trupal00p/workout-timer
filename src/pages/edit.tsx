@@ -19,15 +19,21 @@ import { Accordion } from "../components/Accordion";
 import Button from "../components/Button";
 import { Checkbox, Input } from "../components/Fields";
 import { ConfigEntry, EntryKind, SetConfig } from "../types/config";
-import { actionHandlers, FormModel, FormState } from "../types/forms";
-import { useActionHandlerReducer } from "../util/actionHandlerReducer";
+import { FormState } from "../types/forms";
+import {
+  useActionHandlerReducer,
+  ActionHandlers,
+  ActionDispatchers,
+} from "../util/actionHandlerReducer";
 import { randStr } from "../util/randStr";
-import { useConfig } from "../util/useConfig";
+import { encode, useConfig } from "../util/useConfig";
+
+import { Config } from "../types/config";
 
 const actionHandlers = {
   onInputChange:
     (event: ChangeEvent<HTMLInputElement>) =>
-    (draft: FormState): void => {
+    (draft: FormState<Config>): void => {
       applyOperation(draft.model, {
         op: "replace",
         path: event.target.name,
@@ -36,14 +42,14 @@ const actionHandlers = {
     },
   onCheckboxChange:
     (event: ChangeEvent<HTMLInputElement>) =>
-    (draft: FormState): void => {
+    (draft: FormState<Config>): void => {
       applyOperation(draft.model, {
         op: "replace",
         path: event.target.name,
         value: event.target.checked,
       });
     },
-  onChange: (path: string, value: any) => (draft: FormState) => {
+  onChange: (path: string, value: any) => (draft: FormState<Config>) => {
     applyOperation(draft.model, {
       op: "replace",
       path,
@@ -52,17 +58,17 @@ const actionHandlers = {
   },
   onBlur:
     (event: ChangeEvent<HTMLInputElement>) =>
-    (draft: FormState): void => {
+    (draft: FormState<Config>): void => {
       // console.log(draft.model, event.target.name);
       // draft.touched[event.target.name] = true;
     },
-  onDelete: (path: string) => (draft: FormState) => {
+  onDelete: (path: string) => (draft: FormState<Config>) => {
     applyOperation(draft.model, {
       op: "remove",
       path: path,
     });
   },
-  onDuplicate: (path: string) => (draft: FormState) => {
+  onDuplicate: (path: string) => (draft: FormState<Config>) => {
     let config: ConfigEntry = cloneDeep(getValueByPointer(draft.model, path));
     config.id = randStr(config.kind);
     applyOperation(draft.model, {
@@ -73,7 +79,7 @@ const actionHandlers = {
   },
   setOpenAll:
     (newOpen = false) =>
-    (draft: FormState) => {
+    (draft: FormState<Config>) => {
       lazy(generateObjectPaths(draft.model))
         .filter((k: string) => k.endsWith("open"))
         .map((k) => ({
@@ -83,10 +89,19 @@ const actionHandlers = {
         }))
         .reduce(applyReducer, draft.model);
     },
-  setModel: (model: FormModel) => (draft: FormState) => {
+  setModel: (model: Config) => (draft: FormState<Config>) => {
     draft.model = model;
   },
-  addTimer: (path: string) => (draft: FormState) => {
+  addTimer: (path: string) => (draft: FormState<Config>) => {
+    // collapse all first
+    lazy(generateObjectPaths(draft.model))
+      .filter((k: string) => k.endsWith("open"))
+      .map((k) => ({
+        op: "replace",
+        path: k,
+        value: false,
+      }))
+      .reduce(applyReducer, draft.model);
     applyOperation(draft.model, {
       op: "add",
       path: path,
@@ -98,11 +113,42 @@ const actionHandlers = {
       },
     });
   },
-  addSet: () => (draft: FormState) => {
-    draft.model.definition.push({
+  addSet: () => (draft: FormState<Config>) => {
+    draft.model.definition?.push({
       kind: EntryKind.Set,
       id: randStr(EntryKind.Set),
+      label: "",
+      open: true,
     });
+  },
+  onSave: () => (draft: FormState<Config>) => {
+    // add id if not defined
+    let id = draft.model.id;
+    if (!id) {
+      id = randStr("config");
+      applyOperation(draft.model, {
+        op: "replace",
+        path: "/id",
+        value: id,
+      });
+    }
+
+    // get current saved values from store
+    const savedConfigs: { [key: string]: any } = JSON.parse(
+      window.localStorage.getItem("timer-configs") || "{}"
+    );
+
+    //update store
+    if (draft.model.id) {
+      savedConfigs[draft.model.id] = draft.model;
+      window.localStorage.setItem(
+        "timer-configs",
+        JSON.stringify(savedConfigs)
+      );
+
+      // set has in address bar
+      window.location.hash = encode(draft.model);
+    }
   },
 };
 
@@ -112,8 +158,8 @@ const TimerForm = ({
   actions,
 }: {
   prefix: string;
-  state: FormState;
-  actions: actionHandlers;
+  state: FormState<Config>;
+  actions: ActionDispatchers;
 }) => {
   return (
     <div className="border-solid border-black border-2 rounded-lg shadow-lg m-3 p-3 bg-blue-200">
@@ -229,8 +275,8 @@ const SetForm = ({
 }: {
   entry: SetConfig;
   prefix: string;
-  state: FormState;
-  actions: { [key: string]: (event: ChangeEvent<HTMLInputElement>) => void };
+  state: FormState<Config>;
+  actions: ActionDispatchers;
 }) => {
   return (
     <div className="border-solid border-black border-2 rounded-lg shadow-lg m-3 p-3 bg-green-100">
@@ -292,8 +338,8 @@ const FormLevel = ({
   entry,
 }: {
   prefix: string;
-  state: FormState;
-  actions: actionHandlers;
+  state: FormState<Config>;
+  actions: ActionDispatchers;
   entry: ConfigEntry;
 }): JSX.Element => {
   if (entry.kind === EntryKind.Timer) {
@@ -323,21 +369,6 @@ export default function Home() {
   const start = () => {
     window.location.assign(`/#${encode(state.model)}`);
   };
-  const save = () => {
-    let id = state.model.id;
-    if (!id) {
-      id = randStr("config");
-      actions.onChange("/id", id);
-    }
-
-    const savedConfigs: { [key: string]: any } = JSON.parse(
-      window.localStorage.getItem("timer-configs") || "{}"
-    );
-
-    savedConfigs[id] = state.model;
-
-    window.localStorage.setItem("timer-configs", JSON.stringify(savedConfigs));
-  };
 
   const onReorder = (components: Array<ConfigEntry>) => {
     actions.onChange("/definition", components);
@@ -346,42 +377,86 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen">
       {/* <div className="border-solid border-2 border-indigo-600">top</div> */}
-      <div className="grow bg-slate-100 overflow-auto relative">
+      <div className="grow bg-slate-100 overflow-auto relative pb-52">
         <div className="max-w-4xl m-auto">
           <Input
             type="text"
             name="/title"
-            label="Routine Name"
+            label={
+              <span>
+                Routine Name
+                {config?.id ? (
+                  <span className="text-slate-400 text-xs">
+                    {" "}
+                    ( {config?.id} )
+                  </span>
+                ) : null}
+              </span>
+            }
             helpText="Enter a name for this set of exercises."
             state={state}
             actions={actions}
           />
-          <div className="m-3 text-right">
-            <span
-              className=" mr-3 underline text-slate-800 font-bold cursor-pointer"
-              onClick={() => actions.setOpenAll(false)}
-            >
-              <MinusCircleIcon
-                title="outline"
-                className="h-5 w-5 mr-2 inline"
-              />
-              <span>Collapse All</span>
+          <div className="m-3">
+            <span className="float-right">
+              {config?.id ? (
+                <span
+                  className=" mr-3 underline text-slate-800 font-bold cursor-pointer"
+                  onClick={() => {
+                    if (config) {
+                      actions.setModel(config);
+                    }
+                  }}
+                >
+                  <ArrowPathIcon
+                    title="outline"
+                    className="h-5 w-5 mr-2 inline"
+                  />
+                  <span>Reset</span>
+                </span>
+              ) : null}
+              <span
+                className=" mr-3 underline font-bold cursor-pointer text-red-400"
+                onClick={() => {
+                  actions.setModel({
+                    definition: [],
+                  });
+                }}
+              >
+                <TrashIcon title="outline" className="h-5 w-5 mr-2 inline" />
+                <span>Clear</span>
+              </span>
             </span>
-            <span
-              className="underline text-slate-800 font-bold cursor-pointer "
-              onClick={() => actions.setOpenAll(true)}
-            >
-              <PlusCircleIcon title="outline" className="h-5 w-5 mr-2 inline" />
-              <span>Expand All</span>
+            <span>
+              <span
+                className=" mr-3 underline text-slate-800 font-bold cursor-pointer"
+                onClick={() => actions.setOpenAll(false)}
+              >
+                <MinusCircleIcon
+                  title="outline"
+                  className="h-5 w-5 mr-2 inline"
+                />
+                <span>Collapse All</span>
+              </span>
+              <span
+                className="underline text-slate-800 font-bold cursor-pointer "
+                onClick={() => actions.setOpenAll(true)}
+              >
+                <PlusCircleIcon
+                  title="outline"
+                  className="h-5 w-5 mr-2 inline"
+                />
+                <span>Expand All</span>
+              </span>
             </span>
           </div>
           <Reorder.Group
             axis="y"
-            values={state.model.definition}
+            values={state.model?.definition}
             onReorder={onReorder}
           >
             <AnimatePresence mode="popLayout">
-              {state.model.definition?.map((c: ConfigEntry, i: number) => {
+              {state.model?.definition?.map((c: ConfigEntry, i: number) => {
                 const item_prefix = `/definition/${i}`;
                 return (
                   <Reorder.Item
@@ -413,25 +488,10 @@ export default function Home() {
           </motion.div>
         </div>
       </div>
-      <div className="border-solid border-2 border-indigo-600 text-center">
-        <Button
-          onClick={() => {
-            actions.setModel({
-              definition: [],
-            });
-          }}
-          content="Clear"
-          Icon={TrashIcon}
-        />
-        <Button
-          onClick={() => {
-            actions.setModel(config);
-          }}
-          content="Reset"
-          Icon={ArrowPathIcon}
-        />
+      <div className="border-solid border-2 border-indigo-600 bg-white fixed bottom-0 left-0 right-0 text-center">
+        <a href="/open">Open</a>
         <Button onClick={start} content="Start" Icon={PlusCircleIcon} />
-        <Button onClick={save} content="Save" Icon={BookmarkIcon} />
+        <Button onClick={actions.onSave} content="Save" Icon={BookmarkIcon} />
       </div>
     </div>
   );

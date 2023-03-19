@@ -1,14 +1,21 @@
+import { Config, ConfigEntry } from "@/types/config";
 import { getValueByPointer } from "fast-json-patch";
 import { ChangeEvent } from "react";
 import { FormState } from "../types/forms";
 
 export const Input = ({
-  name, label, state, actions, type = "text", helpText, ...props
+  name,
+  label,
+  state,
+  actions,
+  type = "text",
+  helpText,
+  ...props
 }: {
   name: string;
-  label: string;
-  state: FormState;
-  actions: { [key: string]: (event: ChangeEvent<HTMLInputElement>) => void; };
+  label: React.ReactNode;
+  state: FormState<Config>;
+  actions: { [key: string]: (event: ChangeEvent<HTMLInputElement>) => void };
   type: string;
   helpText?: string;
 }) => {
@@ -27,7 +34,8 @@ export const Input = ({
         value={getValueByPointer(state.model, name) || ""}
         onChange={actions.onInputChange}
         onBlur={actions.onBlur}
-        {...props} />
+        {...props}
+      />
       {helpText ? (
         <div className="text-indigo-600 text-xs m-1">{helpText}</div>
       ) : null}
@@ -35,12 +43,18 @@ export const Input = ({
   );
 };
 export const Checkbox = ({
-  name, label, state, actions, helpText, type = "text", ...props
+  name,
+  label,
+  state,
+  actions,
+  helpText,
+  type = "text",
+  ...props
 }: {
   name: string;
   label: string;
-  state: FormState;
-  actions: { [key: string]: (event: ChangeEvent<HTMLInputElement>) => void; };
+  state: FormState<Config>;
+  actions: { [key: string]: (event: ChangeEvent<HTMLInputElement>) => void };
   type: string;
   helpText?: string;
 }) => {
@@ -54,7 +68,8 @@ export const Checkbox = ({
           checked={getValueByPointer(state.model, name) || false}
           onChange={actions.onCheckboxChange}
           onBlur={actions.onBlur}
-          {...props} />
+          {...props}
+        />
         <label className="ml-2 font-bold" htmlFor={name}>
           {label}
         </label>
