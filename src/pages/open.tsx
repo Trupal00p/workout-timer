@@ -50,7 +50,7 @@ export default function Home() {
             <tbody>
               {Object.entries(state.configs).map(([id, config]) => {
                 return (
-                  <tr>
+                  <tr key={id}>
                     <td className="border border-slate-300  p-4  text-center">
                       <a
                         href={`/#${encode(config)}`}

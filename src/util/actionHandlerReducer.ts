@@ -8,8 +8,8 @@ import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 //   }
 // }
 
-export type ActionHandler = (...args: any[]) => (draft: T) => T;
-export type ActionHandlers= { [key: string]: ActionHandler};
+export type ActionHandler = (...args: any[]) => (draft: any) => void;
+export type ActionHandlers = { [key: string]: ActionHandler };
 export type Action = {
   type: string;
   data: Parameters<any>;
