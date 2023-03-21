@@ -1,6 +1,7 @@
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
+  FolderIcon,
   PencilIcon,
 } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
@@ -17,6 +18,7 @@ import {
 import { lazy } from "../util/lazy";
 import { repeat } from "../util/repeat";
 import { randStr } from "@/util/randStr";
+import Button, { LinkButton } from "@/components/Button";
 
 const reduceEntry =
   (breadcrumbs: string[]) =>
@@ -126,7 +128,15 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="border-solid border-2 border-indigo-600 text-center font-bold text-xl p-2">
+      <div className="border-solid border-2 border-indigo-600 text-center">
+        <LinkButton href="/open">
+          <FolderIcon className="h-6 w-6 mr-3" /> Open
+        </LinkButton>
+        <LinkButton href={editUrl}>
+          <PencilIcon className="h-6 w-6 mr-3" /> Modify
+        </LinkButton>
+      </div>
+      {/* <div className="border-solid border-2 border-indigo-600 text-center font-bold text-xl p-2">
         <div>
           <AnimatePresence mode="popLayout">
             {compiledConfig &&
@@ -145,9 +155,10 @@ export default function Home() {
               })}
           </AnimatePresence>
         </div>
-      </div>
+      </div> */}
       <div className="grow bg-slate-100 overflow-hidden relative">
         <div className="max-w-4xl m-auto">
+          
           <AnimatePresence mode="popLayout">
             {lazy(compiledConfig)
               .filter((config) => config.index >= activeIndex)
@@ -167,6 +178,7 @@ export default function Home() {
                       config={config}
                       isActive={isActive}
                       next={next}
+                      previous={previous}
                     />
                   </motion.div>
                 );
@@ -174,7 +186,7 @@ export default function Home() {
               .collect()}
             {activeIndex !== 0 && activeIndex >= compiledConfig.length ? (
               <motion.div
-                className="border-solid border-2 border-yellow-300 text-center p-5 m-5 drop-shadow-lg rounded-lg bg-white text-5xl mt-20 leading-[5rem]"
+                className="border-solid border-2 border-yellow-300 text-center drop-shadow-lg rounded-lg text-5xl leading-[5rem] relative m-5 p-5 text-center drop-shadow-lg rounded-lg bg-white"
                 key="complete"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -186,27 +198,6 @@ export default function Home() {
             ) : null}
           </AnimatePresence>
         </div>
-      </div>
-      <div className="border-solid border-2 border-indigo-600 text-center">
-        <button
-          onClick={previous}
-          className={`drop-shadow-lg m-2 inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-indigo-500 hover:bg-indigo-600 active:bg-indigo-700  active:drop-shadow-none focus:outline-none`}
-        >
-          <ArrowLeftIcon className="h-6 w-6 mr-3" /> Previous
-        </button>
-        <a
-          href={editUrl}
-          className={`drop-shadow-lg m-2 inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-indigo-500 hover:bg-indigo-600 active:bg-indigo-700  active:drop-shadow-none focus:outline-none`}
-        >
-          <PencilIcon className="h-6 w-6 mr-3" /> Edit
-        </a>
-        <button
-          onClick={next}
-          className={`drop-shadow-lg m-2 inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-indigo-500 hover:bg-indigo-600 active:bg-indigo-700  active:drop-shadow-none focus:outline-none`}
-        >
-          <ArrowRightIcon className="h-6 w-6 mr-3" />
-          Next
-        </button>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { LinkButton } from "@/components/Button";
 import { Config } from "@/types/config";
 import {
   ActionDispatchers,
@@ -5,7 +6,12 @@ import {
 } from "@/util/actionHandlerReducer";
 import { randStr } from "@/util/randStr";
 import { encode } from "@/util/useConfig";
-import { ClockIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
+import {
+  ClockIcon,
+  PencilIcon,
+  PlusCircleIcon,
+  TrashIcon,
+} from "@heroicons/react/24/solid";
 import { applyOperation } from "fast-json-patch";
 import { useEffect } from "react";
 
@@ -38,49 +44,65 @@ export default function Home() {
   }, [actions.setConfigs]);
   return (
     <div className="flex flex-col h-screen">
-      <div className="grow bg-slate-100 overflow-auto relative pb-52">
+      <div className="grow  overflow-auto relative pb-52">
         <div className="max-w-4xl m-auto">
-          {Object.entries(state.configs).map(([id, config]) => {
-            return (
-              <div>
-                <span>{config.title}</span>
-
-                <a
-                  href={`/#${encode(config)}`}
-                  className=" mr-3 underline font-bold cursor-pointer text-slate-400"
-                >
-                  <ClockIcon title="outline" className="h-5 w-5 mr-2 inline" />
-                  <span>Start</span>
-                </a>
-                <a
-                  href={`/edit#${encode(config)}`}
-                  className=" mr-3 underline font-bold cursor-pointer text-slate-400"
-                >
-                  <PencilIcon title="outline" className="h-5 w-5 mr-2 inline" />
-                  <span>Edit</span>
-                </a>
-                <span
-                  className=" mr-3 underline font-bold cursor-pointer text-red-400"
-                  onClick={() => {
-                    actions.onDelete(config.id);
-                  }}
-                >
-                  <TrashIcon title="outline" className="h-5 w-5 mr-2 inline" />
-                  <span>Delete</span>
-                </span>
-              </div>
-            );
-          })}
+          <table className="table-auto border-collapse w-full border border-slate-400 bg-white text-sm shadow-sm">
+            <tbody>
+              {Object.entries(state.configs).map(([id, config]) => {
+                return (
+                  <tr>
+                    <td className="border border-slate-300  p-4  text-center">
+                      <a
+                        href={`/#${encode(config)}`}
+                        className="underline font-bold cursor-pointer"
+                      >
+                        <span>{config.title}</span>
+                      </a>
+                    </td>
+                    <td className="border border-slate-300  p-4 text-center">
+                      <a
+                        href={`/edit#${encode(config)}`}
+                        className="underline font-bold cursor-pointer"
+                      >
+                        <PencilIcon
+                          title="outline"
+                          className="h-5 w-5 md:mr-2 inline"
+                        />
+                        <span className="md:inline hidden">Edit</span>
+                      </a>
+                    </td>
+                    <td className="border border-slate-300  p-4 text-center">
+                      <span
+                        className="underline font-bold cursor-pointer text-red-400"
+                        onClick={() => {
+                          actions.onDelete(config.id);
+                        }}
+                      >
+                        <TrashIcon
+                          title="outline"
+                          className="h-5 w-5 md:mr-2 inline"
+                        />
+                        <span className="md:inline hidden">Delete</span>
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
-        <a
-          href={`/edit#${encode({
-            id: randStr("config"),
-            definition: [],
-            title: "",
-          })}`}
-        >
-          New
-        </a>
+        <div className="text-center">
+          <LinkButton
+            href={`/edit#${encode({
+              id: randStr("config"),
+              definition: [],
+              title: "",
+            })}`}
+          >
+            <PlusCircleIcon className="h-6 w-6 mr-3" />
+            New
+          </LinkButton>
+        </div>
       </div>
       {/* <div className="border-solid border-2 border-indigo-600 bg-white fixed bottom-0 left-0 right-0 text-center"></div> */}
     </div>

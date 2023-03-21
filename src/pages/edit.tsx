@@ -16,7 +16,7 @@ import { AnimatePresence, motion, Reorder } from "framer-motion";
 import { cloneDeep } from "lodash";
 import { ChangeEvent, useEffect } from "react";
 import { Accordion } from "../components/Accordion";
-import Button from "../components/Button";
+import Button, { LinkButton } from "../components/Button";
 import { Checkbox, Input } from "../components/Fields";
 import { ConfigEntry, EntryKind, SetConfig } from "../types/config";
 import { FormState } from "../types/forms";
@@ -28,6 +28,23 @@ import { randStr } from "../util/randStr";
 import { encode, useConfig } from "../util/useConfig";
 
 import { Config } from "../types/config";
+import {
+  ArrowTopRightOnSquareIcon,
+  FolderIcon,
+} from "@heroicons/react/24/solid";
+
+const setOpenAll =
+  (newOpen = false) =>
+  (draft: FormState<Config>) => {
+    lazy(generateObjectPaths(draft.model))
+      .filter((k: string) => k.endsWith("open"))
+      .map((k) => ({
+        op: "replace",
+        path: k,
+        value: newOpen,
+      }))
+      .reduce(applyReducer, draft.model);
+  };
 
 const actionHandlers = {
   onInputChange:
@@ -76,31 +93,14 @@ const actionHandlers = {
       value: config,
     });
   },
-  setOpenAll:
-    (newOpen = false) =>
-    (draft: FormState<Config>) => {
-      lazy(generateObjectPaths(draft.model))
-        .filter((k: string) => k.endsWith("open"))
-        .map((k) => ({
-          op: "replace",
-          path: k,
-          value: newOpen,
-        }))
-        .reduce(applyReducer, draft.model);
-    },
+  setOpenAll,
   setModel: (model: Config) => (draft: FormState<Config>) => {
     draft.model = model;
   },
   addTimer: (path: string) => (draft: FormState<Config>) => {
     // collapse all first
-    lazy(generateObjectPaths(draft.model))
-      .filter((k: string) => k.endsWith("open"))
-      .map((k) => ({
-        op: "replace",
-        path: k,
-        value: false,
-      }))
-      .reduce(applyReducer, draft.model);
+    setOpenAll(false)(draft);
+    // add timer in open state
     applyOperation(draft.model, {
       op: "add",
       path: path,
@@ -131,6 +131,8 @@ const actionHandlers = {
         value: id,
       });
     }
+
+    setOpenAll(false)(draft);
 
     // get current saved values from store
     const savedConfigs: { [key: string]: any } = JSON.parse(
@@ -375,6 +377,20 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen">
+      <div className="border-solid border-2 border-indigo-600 bg-white  bottom-0 left-0 right-0 text-center">
+        <LinkButton href="/open">
+          <FolderIcon className="h-6 w-6 md:mr-3" />
+          <span className="hidden md:inline">Open</span>
+        </LinkButton>
+        <Button onClick={actions.onSave}>
+          <BookmarkIcon className="h-6 w-6 md:mr-3" />
+          <span className="hidden md:inline">Save</span>
+        </Button>
+        <Button onClick={start}>
+          <ArrowTopRightOnSquareIcon className="h-6 w-6 md:mr-3" />
+          <span className="hidden md:inline">Start</span>
+        </Button>
+      </div>
       {/* <div className="border-solid border-2 border-indigo-600">top</div> */}
       <div className="grow bg-slate-100 overflow-auto relative pb-52">
         <div className="max-w-4xl m-auto">
@@ -411,7 +427,7 @@ export default function Home() {
                     title="outline"
                     className="h-5 w-5 mr-2 inline"
                   />
-                  <span>Reset</span>
+                  <span className="md:inline hidden">Reset</span>
                 </span>
               ) : null}
               <span
@@ -423,7 +439,7 @@ export default function Home() {
                 }}
               >
                 <TrashIcon title="outline" className="h-5 w-5 mr-2 inline" />
-                <span>Clear</span>
+                <span className="md:inline hidden">Clear</span>
               </span>
             </span>
             <span>
@@ -435,7 +451,7 @@ export default function Home() {
                   title="outline"
                   className="h-5 w-5 mr-2 inline"
                 />
-                <span>Collapse All</span>
+                <span className="md:inline hidden">Collapse All</span>
               </span>
               <span
                 className="underline text-slate-800 font-bold cursor-pointer "
@@ -445,7 +461,7 @@ export default function Home() {
                   title="outline"
                   className="h-5 w-5 mr-2 inline"
                 />
-                <span>Expand All</span>
+                <span className="md:inline hidden">Expand All</span>
               </span>
             </span>
           </div>
@@ -479,18 +495,12 @@ export default function Home() {
             </AnimatePresence>
           </Reorder.Group>
           <motion.div layout className="text-center">
-            <Button
-              onClick={() => actions.addTimer("/definition/-")}
-              content="Add Timer"
-              Icon={PlusCircleIcon}
-            />
+            <Button onClick={() => actions.addTimer("/definition/-")}>
+              <PlusCircleIcon className="h-6 w-6 mr-3" />
+              Add Timer
+            </Button>
           </motion.div>
         </div>
-      </div>
-      <div className="border-solid border-2 border-indigo-600 bg-white fixed bottom-0 left-0 right-0 text-center">
-        <a href="/open">Open</a>
-        <Button onClick={start} content="Start" Icon={PlusCircleIcon} />
-        <Button onClick={actions.onSave} content="Save" Icon={BookmarkIcon} />
       </div>
     </div>
   );

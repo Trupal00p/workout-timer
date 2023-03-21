@@ -1,17 +1,26 @@
-import { PauseCircleIcon, PlayCircleIcon } from "@heroicons/react/24/solid";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  PauseCircleIcon,
+  PlayCircleIcon,
+} from "@heroicons/react/24/solid";
+import { MotionConfig } from "framer-motion";
 import { useEffect } from "react";
 import { say } from "../pages/index";
 import { CompiledTimerConfig } from "../types/config";
 import { useTimer } from "../util/useCountdown";
+import Button from "./Button";
 
 export function TimerEntry({
   config,
   isActive,
   next,
+  previous,
 }: {
   config: CompiledTimerConfig;
   isActive: boolean;
   next: () => void;
+  previous: () => void;
 }): JSX.Element {
   const { timer, setRunning, remaining_seconds, isRunning, reset } = useTimer({
     duration_seconds: config.duration_seconds || 0,
@@ -60,27 +69,43 @@ export function TimerEntry({
   const toggle = () => isActive && setRunning((r) => !r);
 
   return (
-    <div
-      className={`relative m-5 p-5 text-center drop-shadow-lg rounded-lg bg-white ${
-        isActive
-          ? "hover:bg-slate-50 active:bg-slate-100  active:drop-shadow-none cursor-pointer"
-          : ""
-      }`}
-      onClick={toggle}
-    >
-      <div className="text-5xl">
-        <span>{config.label}</span>
+    <>
+      <div
+        className={`relative m-5 p-5 text-center drop-shadow-lg rounded-lg bg-white ${
+          isActive
+            ? "hover:bg-slate-50 active:bg-slate-100  active:drop-shadow-none cursor-pointer"
+            : ""
+        }`}
+        onClick={toggle}
+      >
+        <div className="text-5xl">
+          <span>{config.label}</span>
+        </div>
+        {isActive ? (
+          <div className="text-7xl">
+            <span>{timer}</span>
+          </div>
+        ) : null}
+        {!isActive ? null : isRunning ? (
+          <PauseCircleIcon className="h-10 w-10 absolute right-2 bottom-2" />
+        ) : (
+          <PlayCircleIcon className="h-10 w-10 absolute right-2 bottom-2" />
+        )}
       </div>
       {isActive ? (
-        <div className="text-7xl">
-          <span>{timer}</span>
+        <div className="">
+          <Button onClick={previous}>
+            <ArrowLeftIcon className="h-6 w-6 mr-3" /> Previous
+          </Button>
+          <button
+            className="float-right drop-shadow-lg m-2 inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-indigo-500 hover:bg-indigo-600 active:bg-indigo-700  active:drop-shadow-none focus:outline-none"
+            onClick={next}
+          >
+            Next
+            <ArrowRightIcon className="h-6 w-6 ml-3" />
+          </button>
         </div>
       ) : null}
-      {!isActive ? null : isRunning ? (
-        <PauseCircleIcon className="h-10 w-10 absolute right-2 bottom-2" />
-      ) : (
-        <PlayCircleIcon className="h-10 w-10 absolute right-2 bottom-2" />
-      )}
-    </div>
+    </>
   );
 }
