@@ -1,6 +1,7 @@
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
+  ClockIcon,
   FolderIcon,
   PencilIcon,
 } from "@heroicons/react/24/solid";
@@ -106,7 +107,7 @@ const variants = {
 };
 
 export default function Home() {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const [config] = useConfig();
   const [editUrl, setEditUrl] = useState("");
   const compiledConfig: CompiledConfigEntry[] = compileConfig(config);
@@ -124,42 +125,49 @@ export default function Home() {
 
   const next = () =>
     setActiveIndex((v) => Math.min(compiledConfig.length, v + 1));
-  const previous = () => setActiveIndex((v) => Math.max(0, v - 1));
+  const previous = () => setActiveIndex((v) => Math.max(-1, v - 1));
 
   return (
     <div className="flex flex-col h-screen">
+      <audio src="sounds/success-fanfare-trumpets.mp3"  preload="auto"/>
       <div className="border-solid border-2 border-indigo-600 text-center">
+        <Button onClick={previous}>
+          <ArrowLeftIcon className="h-6 w-6 md:mr-3" />
+          <span className="hidden md:inline">Previous</span>
+        </Button>
         <LinkButton href="/open">
-          <FolderIcon className="h-6 w-6 mr-3" /> Open
+          <FolderIcon className="h-6 w-6 md:mr-3" />
+          <span className="hidden md:inline">Open</span>
         </LinkButton>
         <LinkButton href={editUrl}>
-          <PencilIcon className="h-6 w-6 mr-3" /> Modify
+          <PencilIcon className="h-6 w-6 md:mr-3" />
+          <span className="hidden md:inline">Modify</span>
         </LinkButton>
+        <Button onClick={next}>
+          <ArrowRightIcon className="h-6 w-6 md:mr-3" />
+          <span className="hidden md:inline">Next</span>
+        </Button>
       </div>
-      {/* <div className="border-solid border-2 border-indigo-600 text-center font-bold text-xl p-2">
-        <div>
-          <AnimatePresence mode="popLayout">
-            {compiledConfig &&
-              compiledConfig[activeIndex]?.breadcrumbs?.map((crumb: string) => {
-                return (
-                  <motion.span
-                    layout
-                    key={crumb}
-                    initial={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.8, opacity: 0 }}
-                    transition={{ type: "spring", bounce: 0.3 }}
-                  >
-                    {crumb}
-                  </motion.span>
-                );
-              })}
-          </AnimatePresence>
-        </div>
-      </div> */}
       <div className="grow bg-slate-100 overflow-hidden relative">
         <div className="max-w-4xl m-auto">
-          
           <AnimatePresence mode="popLayout">
+            {activeIndex === -1 ? (
+              <motion.div
+                layout
+                className="text-center pt-3"
+                key="startbutton"
+                initial={{ scale: 0.8, opacity: 0 }}
+                variants={variants}
+                animate="active"
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ type: "spring", bounce: 0.3 }}
+              >
+                <Button onClick={next}>
+                  <ClockIcon className="w-6 h-6 mr-3" />
+                  Click To Start!
+                </Button>
+              </motion.div>
+            ) : null}
             {lazy(compiledConfig)
               .filter((config) => config.index >= activeIndex)
               .map((config) => {
@@ -184,18 +192,19 @@ export default function Home() {
                 );
               })
               .collect()}
-            {activeIndex !== 0 && activeIndex >= compiledConfig.length ? (
-              <motion.div
-                className="border-solid border-2 border-yellow-300 text-center drop-shadow-lg rounded-lg text-5xl leading-[5rem] relative m-5 p-5 text-center drop-shadow-lg rounded-lg bg-white"
-                key="complete"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-              >
-                <div className="">🥳🎉🎊</div>
-                <div>Complete!</div>
-              </motion.div>
-            ) : null}
+            <motion.div
+              layout
+              className="border-solid border-2 border-yellow-300 text-center drop-shadow-lg rounded-lg text-5xl leading-[5rem] relative m-5 p-5 text-center drop-shadow-lg rounded-lg bg-white"
+              key="complete"
+              initial={{ scale: 0.8, opacity: 0 }}
+              variants={variants}
+              animate={activeIndex > compileConfig.length ? "active" : "next"}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: "spring", bounce: 0.3 }}
+            >
+              <div className="">🥳🎉🎊</div>
+              <div>Complete!</div>
+            </motion.div>
           </AnimatePresence>
         </div>
       </div>

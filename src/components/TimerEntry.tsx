@@ -92,20 +92,6 @@ export function TimerEntry({
           <PlayCircleIcon className="h-10 w-10 absolute right-2 bottom-2" />
         )}
       </div>
-      {isActive ? (
-        <div className="">
-          <Button onClick={previous}>
-            <ArrowLeftIcon className="h-6 w-6 mr-3" /> Previous
-          </Button>
-          <button
-            className="float-right drop-shadow-lg m-2 inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-indigo-500 hover:bg-indigo-600 active:bg-indigo-700  active:drop-shadow-none focus:outline-none"
-            onClick={next}
-          >
-            Next
-            <ArrowRightIcon className="h-6 w-6 ml-3" />
-          </button>
-        </div>
-      ) : null}
     </>
   );
 }
