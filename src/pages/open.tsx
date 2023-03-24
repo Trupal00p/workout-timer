@@ -1,4 +1,4 @@
-import { LinkButton } from "@/components/Button";
+import Button, { LinkButton } from "@/components/Button";
 import { Config } from "@/types/config";
 import {
   ActionDispatchers,
@@ -7,6 +7,7 @@ import {
 import { randStr } from "@/util/randStr";
 import { encode } from "@/util/useConfig";
 import {
+  ArrowTopRightOnSquareIcon,
   ClockIcon,
   PencilIcon,
   PlusCircleIcon,
@@ -57,33 +58,24 @@ export default function Home() {
                         className="underline font-bold cursor-pointer"
                       >
                         <span>{config.title}</span>
+                        <span>
+                          <ArrowTopRightOnSquareIcon className="h-6 w-6 ml-1 inline" />
+                        </span>
                       </a>
                     </td>
                     <td className="border border-slate-300  p-4 text-center">
-                      <a
-                        href={`/edit#${encode(config)}`}
-                        className="underline font-bold cursor-pointer"
-                      >
-                        <PencilIcon
-                          title="outline"
-                          className="h-5 w-5 md:mr-2 inline"
-                        />
-                        <span className="md:inline hidden">Edit</span>
-                      </a>
-                    </td>
-                    <td className="border border-slate-300  p-4 text-center">
-                      <span
-                        className="underline font-bold cursor-pointer text-red-400"
+                      <LinkButton href={`/edit#${encode(config)}`}>
+                        <PencilIcon className="h-6 w-6 md:mr-3" />
+                        <span className="hidden md:inline">Edit</span>
+                      </LinkButton>
+                      <Button
                         onClick={() => {
                           actions.onDelete(config.id);
                         }}
                       >
-                        <TrashIcon
-                          title="outline"
-                          className="h-5 w-5 md:mr-2 inline"
-                        />
-                        <span className="md:inline hidden">Delete</span>
-                      </span>
+                        <TrashIcon className="h-6 w-6 md:mr-3" />
+                        <span className="hidden md:inline">Delete</span>
+                      </Button>
                     </td>
                   </tr>
                 );

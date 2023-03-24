@@ -117,11 +117,15 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (activeIndex !== 0 && activeIndex >= compiledConfig.length) {
-      var audio = new Audio("sounds/success-fanfare-trumpets.mp3");
+    let audio: HTMLAudioElement;
+    if (activeIndex >= compiledConfig.length) {
+      audio = new Audio("sounds/success-fanfare-trumpets.mp3");
       audio.play();
     }
-  }, [activeIndex, compileConfig]);
+    return () => {
+      audio && audio.pause();
+    };
+  }, [activeIndex, compiledConfig]);
 
   const next = () =>
     setActiveIndex((v) => Math.min(compiledConfig.length, v + 1));
@@ -129,7 +133,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen">
-      <audio src="sounds/success-fanfare-trumpets.mp3"  preload="auto"/>
+      <audio src="sounds/success-fanfare-trumpets.mp3" preload="auto" />
       <div className="border-solid border-2 border-indigo-600 text-center">
         <Button onClick={previous}>
           <ArrowLeftIcon className="h-6 w-6 md:mr-3" />
@@ -168,6 +172,8 @@ export default function Home() {
                 </Button>
               </motion.div>
             ) : null}
+          </AnimatePresence>
+          <AnimatePresence mode="popLayout">
             {lazy(compiledConfig)
               .filter((config) => config.index >= activeIndex)
               .map((config) => {
@@ -192,13 +198,15 @@ export default function Home() {
                 );
               })
               .collect()}
+          </AnimatePresence>
+          <AnimatePresence mode="popLayout">
             <motion.div
               layout
               className="border-solid border-2 border-yellow-300 text-center drop-shadow-lg rounded-lg text-5xl leading-[5rem] relative m-5 p-5 text-center drop-shadow-lg rounded-lg bg-white"
               key="complete"
               initial={{ scale: 0.8, opacity: 0 }}
               variants={variants}
-              animate={activeIndex > compileConfig.length ? "active" : "next"}
+              animate={activeIndex == compiledConfig.length ? "active" : "next"}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ type: "spring", bounce: 0.3 }}
             >
