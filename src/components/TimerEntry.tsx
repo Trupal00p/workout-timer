@@ -7,7 +7,7 @@ import {
 import { MotionConfig } from "framer-motion";
 import { useEffect } from "react";
 import { say } from "../pages/index";
-import { CompiledTimerConfig } from "../types/config";
+import { CompiledTimerComponent } from "../types/config";
 import { useTimer } from "../util/useCountdown";
 import Button from "./Button";
 
@@ -17,7 +17,7 @@ export function TimerEntry({
   next,
   previous,
 }: {
-  config: CompiledTimerConfig;
+  config: CompiledTimerComponent;
   isActive: boolean;
   next: () => void;
   previous: () => void;

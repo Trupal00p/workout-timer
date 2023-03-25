@@ -1,4 +1,4 @@
-import { Config, ConfigEntry } from "@/types/config";
+import { Config, Component } from "@/types/config";
 import { getValueByPointer } from "fast-json-patch";
 import { ChangeEvent } from "react";
 import { FormState } from "../types/forms";

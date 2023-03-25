@@ -87,7 +87,7 @@ export default function Home() {
           <LinkButton
             href={`/edit#${encode({
               id: randStr("config"),
-              definition: [],
+              components: [],
               title: "",
             })}`}
           >

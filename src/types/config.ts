@@ -5,7 +5,7 @@ export enum EntryKind {
   Rest = "rest",
 }
 
-export type CompiledTimerConfig = {
+export type CompiledTimerComponent = {
   kind: EntryKind.Timer | EntryKind.Prepare | EntryKind.Rest;
   id: string;
   label: string;
@@ -21,22 +21,22 @@ export type CompiledTimerConfig = {
   index?: number;
 };
 
-export type CompileSetConfig = {
+export type CompileSetComponent = {
   kind: EntryKind.Set;
   id: string;
   label: string;
   auto_next?: boolean;
   count?: number;
-  components?: Array<CompiledConfigEntry>;
+  components?: Array<CompiledComponent>;
   index?: number;
   prepare_time?: number;
   end_whistle?: boolean;
   breadcrumbs?: string[];
 };
 
-export type CompiledConfigEntry = CompiledTimerConfig | CompileSetConfig;
+export type CompiledComponent = CompiledTimerComponent | CompileSetComponent;
 
-export type TimerConfig = {
+export type TimerComponent = {
   kind: EntryKind.Timer;
   id: string;
   label: string;
@@ -51,13 +51,13 @@ export type TimerConfig = {
   open: boolean;
 };
 
-export type SetConfig = {
+export type SetComponent = {
   kind: EntryKind.Set;
   id: string;
   label: string;
-  auto_next?: boolean;
+  components: Array<Component>;
+  auto_next: boolean;
   count?: number;
-  components?: Array<ConfigEntry>;
   index?: number;
   prepare_time?: number;
   end_whistle?: boolean;
@@ -65,10 +65,10 @@ export type SetConfig = {
   open: boolean;
 };
 
-export type ConfigEntry = TimerConfig | SetConfig;
+export type Component = TimerComponent | SetComponent;
 
 export type Config = {
   title: string;
   id?: string;
-  definition: ConfigEntry[];
+  components: Component[];
 };

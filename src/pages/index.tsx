@@ -12,9 +12,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { TimerEntry } from "../components/TimerEntry";
 import {
   Config,
-  ConfigEntry,
+  Component,
   EntryKind,
-  CompiledConfigEntry,
+  CompiledComponent,
 } from "../types/config";
 import { lazy } from "../util/lazy";
 import { repeat } from "../util/repeat";
@@ -23,7 +23,7 @@ import Button, { LinkButton } from "@/components/Button";
 
 const reduceEntry =
   (breadcrumbs: string[]) =>
-  (acc: CompiledConfigEntry[], entry: ConfigEntry): CompiledConfigEntry[] => {
+  (acc: CompiledComponent[], entry: Component): CompiledComponent[] => {
     if (entry.kind === EntryKind.Timer) {
       // add prep time if present
       if (entry.prepare_time) {
@@ -77,9 +77,9 @@ const reduceEntry =
     return acc;
   };
 
-function compileConfig(config: Config | undefined): CompiledConfigEntry[] {
+function compileConfig(config: Config | undefined): CompiledComponent[] {
   return (
-    config?.definition
+    config?.components
       .reduce(reduceEntry([config.title || "[No Title]"]), [])
       .map((e, index) => ({ index, ...e })) || []
   );
@@ -110,7 +110,7 @@ export default function Home() {
   const [activeIndex, setActiveIndex] = useState(-1);
   const [config] = useConfig();
   const [editUrl, setEditUrl] = useState("");
-  const compiledConfig: CompiledConfigEntry[] = compileConfig(config);
+  const compiledConfig: CompiledComponent[] = compileConfig(config);
 
   useEffect(() => {
     setEditUrl(`/edit${window.location.hash}`);
