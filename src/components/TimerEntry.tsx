@@ -27,7 +27,7 @@ export function TimerEntry({
     autostart: false,
     onComplete: () => {
       if (config.end_whistle) {
-        var audio = new Audio("sounds/whistle.mp3");
+        var audio = new Audio("sounds/Notice4.wav");
         audio.play();
       }
       if (!!config.auto_next) {
@@ -39,7 +39,7 @@ export function TimerEntry({
   // add beeps as end approaches
   useEffect(() => {
     if (config.beep_below && remaining_seconds < config.beep_below) {
-      var audio = new Audio("sounds/beep.mp3");
+      var audio = new Audio("sounds/Notice2.wav");
       audio.play();
     }
   }, [remaining_seconds, config.beep_below]);
