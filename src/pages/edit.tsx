@@ -260,7 +260,7 @@ export default function Home() {
             </span>
             <ExpandControls actions={actions} />
           </div>
-          <div className="ml-3 mr-3 md:m-0">
+          <div className="mr-10 md:m-0">
 
           <ComponentList
             components={state.model.components}
