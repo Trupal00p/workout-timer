@@ -1,4 +1,16 @@
 import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+import { motion } from "framer-motion";
+
+const accordionVariants = {
+  open: { opacity: 1, height: "auto", display: "block" },
+  collapsed: {
+    opacity: 0,
+    height: 0,
+    transitionEnd: {
+      display: "none",
+    },
+  },
+};
 
 export const Accordion = ({
   summary,
@@ -27,10 +39,23 @@ export const Accordion = ({
           )}
           {summary}
         </div>
-        <div className="grow"/>
+        <div className="grow" />
         <div className="text-right">{right}</div>
       </div>
-      {open ? children : null}
+      <div>
+        <motion.div
+          key="content"
+          layout="preserve-aspect"
+          
+          className="hidden overflow-visible"
+          initial={false}
+          animate={open ? "open" : "collapsed"}
+          exit="collapsed"
+          variants={accordionVariants}
+        >
+          {children}
+        </motion.div>
+      </div>
     </div>
   );
 };

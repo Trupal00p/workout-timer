@@ -3,7 +3,6 @@ import { lazy } from "@/util/lazy";
 import {
   ArrowPathIcon,
   BookmarkIcon,
-  MinusCircleIcon,
   PlusCircleIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
@@ -19,9 +18,7 @@ import Button, { LinkButton } from "../components/Button";
 import { Input } from "../components/Fields";
 import { Component, EntryKind } from "../types/config";
 import { FormState } from "../types/forms";
-import {
-  useActionHandlerReducer,
-} from "../util/actionHandlerReducer";
+import { useActionHandlerReducer } from "../util/actionHandlerReducer";
 import { randStr } from "../util/randStr";
 import { encode, useConfig } from "../util/useConfig";
 
@@ -31,12 +28,16 @@ import {
 } from "@heroicons/react/24/solid";
 import { Config } from "../types/config";
 import { ComponentList } from "../components/ComponentList";
+import { ExpandControls } from "../components/ExpandControls";
 
 const setOpenAll =
-  (newOpen = false) =>
+  (newOpen = false, prefix = "") =>
   (draft: FormState<Config>) => {
     lazy(generateObjectPaths(draft.model))
-      .filter((k: string) => k.endsWith("open"))
+      .filter(
+        (k: string) =>
+          k.startsWith(`${prefix}/components`) && k.includes("open")
+      )
       .map((k) => ({
         op: "replace",
         path: k,
@@ -95,9 +96,16 @@ const actionHandlers = {
   onDuplicate: (path: string) => (draft: FormState<Config>) => {
     let config: Component = cloneDeep(getValueByPointer(draft.model, path));
     config.id = randStr(config.kind);
+    config.open = true;
+    let pathParts = path.split("/");
+    let indexString = pathParts.pop();
+    let newIndex = indexString
+      ? (parseInt(indexString, 10) + 1).toString()
+      : "-";
+    pathParts.push(newIndex);
     applyOperation(draft.model, {
       op: "add",
-      path: path,
+      path: pathParts.join("/"),
       value: config,
     });
   },
@@ -105,29 +113,32 @@ const actionHandlers = {
   setModel: (model: Config) => (draft: FormState<Config>) => {
     draft.model = model;
   },
-  addTimer: (path: string) => (draft: FormState<Config>) => {
+  addTimer: (prefix: string) => (draft: FormState<Config>) => {
     // collapse all first
-    // setOpenAll(false)(draft);
+    setOpenAll(false, prefix)(draft);
     // add timer in open state
     applyOperation(draft.model, {
       op: "add",
-      path: path,
+      path: `${prefix}/components/-`,
       value: {
         kind: EntryKind.Timer,
         id: randStr(EntryKind.Timer),
         auto_next: true,
-        open: false,
+        open: true,
       },
     });
   },
-  addSet: () => (draft: FormState<Config>) => {
-    draft.model.components?.push({
-      kind: EntryKind.Set,
-      id: randStr(EntryKind.Set),
-      label: "",
-      open: true,
-      components: [],
-      auto_next: true,
+  addSet: (path: string) => (draft: FormState<Config>) => {
+    applyOperation(draft.model, {
+      op: "add",
+      path: path,
+      value: {
+        kind: EntryKind.Set,
+        id: randStr(EntryKind.Set),
+        components: [],
+        auto_next: true,
+        open: true,
+      },
     });
   },
   onSave: () => (draft: FormState<Config>) => {
@@ -247,44 +258,13 @@ export default function Home() {
                 <span className="md:inline hidden">Clear</span>
               </span>
             </span>
-            <span>
-              <span
-                className=" mr-3 underline text-slate-800 font-bold cursor-pointer"
-                onClick={() => actions.setOpenAll(false)}
-              >
-                <MinusCircleIcon
-                  title="outline"
-                  className="h-5 w-5 mr-2 inline"
-                />
-                <span className="md:inline hidden">Collapse All</span>
-              </span>
-              <span
-                className="underline text-slate-800 font-bold cursor-pointer "
-                onClick={() => actions.setOpenAll(true)}
-              >
-                <PlusCircleIcon
-                  title="outline"
-                  className="h-5 w-5 mr-2 inline"
-                />
-                <span className="md:inline hidden">Expand All</span>
-              </span>
-            </span>
+            <ExpandControls actions={actions} />
           </div>
           <ComponentList
             components={state.model.components}
             state={state}
             actions={actions}
           />
-          <motion.div layout className="text-center">
-            <Button onClick={() => actions.addTimer("/components/-")}>
-              <PlusCircleIcon className="h-6 w-6 mr-3" />
-              Add Timer
-            </Button>
-            <Button onClick={() => actions.addSet("/components/-")}>
-              <PlusCircleIcon className="h-6 w-6 mr-3" />
-              Add Set
-            </Button>
-          </motion.div>
         </div>
       </div>
     </div>
