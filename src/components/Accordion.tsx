@@ -18,12 +18,14 @@ export const Accordion = ({
   children,
   open,
   setOpen,
+  onAnimationComplete,
 }: {
   open: boolean;
   setOpen: (o: boolean) => void;
   summary: React.ReactNode;
   right: React.ReactNode;
   children: React.ReactNode;
+  onAnimationComplete?: (definition: any) => void;
 }): JSX.Element => {
   return (
     <div>
@@ -46,12 +48,12 @@ export const Accordion = ({
         <motion.div
           key="content"
           layout="preserve-aspect"
-          
           className="hidden overflow-visible"
           initial={false}
           animate={open ? "open" : "collapsed"}
           exit="collapsed"
           variants={accordionVariants}
+          onAnimationComplete={onAnimationComplete}
         >
           {children}
         </motion.div>

@@ -3,15 +3,14 @@ import { lazy } from "@/util/lazy";
 import {
   ArrowPathIcon,
   BookmarkIcon,
-  PlusCircleIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import {
   applyOperation,
+  applyPatch,
   applyReducer,
   getValueByPointer,
 } from "fast-json-patch";
-import { motion } from "framer-motion";
 import { cloneDeep } from "lodash";
 import { ChangeEvent, useEffect } from "react";
 import Button, { LinkButton } from "../components/Button";
@@ -26,9 +25,9 @@ import {
   ArrowTopRightOnSquareIcon,
   FolderIcon,
 } from "@heroicons/react/24/solid";
-import { Config } from "../types/config";
 import { ComponentList } from "../components/ComponentList";
 import { ExpandControls } from "../components/ExpandControls";
+import { Config } from "../types/config";
 
 const setOpenAll =
   (newOpen = false, prefix = "") =>
@@ -71,6 +70,20 @@ const actionHandlers = {
       path,
       value,
     });
+  },
+  onSetOpen: (prefix: string, open: boolean) => (draft: FormState<Config>) => {
+    applyPatch(draft.model, [
+      {
+        op: "replace",
+        path: `${prefix}/open`,
+        value: open,
+      },
+      {
+        op: "replace",
+        path: "/scrollIntoView",
+        value: open ? prefix : null,
+      },
+    ]);
   },
   onBlur:
     (event: ChangeEvent<HTMLInputElement>) =>
@@ -117,7 +130,8 @@ const actionHandlers = {
     // collapse all first
     setOpenAll(false, prefix)(draft);
     // add timer in open state
-    applyOperation(draft.model, {
+
+    const result = applyOperation(draft.model, {
       op: "add",
       path: `${prefix}/components/-`,
       value: {
@@ -127,11 +141,20 @@ const actionHandlers = {
         open: true,
       },
     });
-  },
-  addSet: (path: string) => (draft: FormState<Config>) => {
+
     applyOperation(draft.model, {
       op: "add",
-      path: path,
+      // @ts-ignore
+      value: `${prefix}/components/${result.index}`,
+      path: "/scrollIntoView",
+    });
+  },
+  addSet: (prefix: string) => (draft: FormState<Config>) => {
+    setOpenAll(false, prefix)(draft);
+
+    applyOperation(draft.model, {
+      op: "add",
+      path: `${prefix}/components/-`,
       value: {
         kind: EntryKind.Set,
         id: randStr(EntryKind.Set),
@@ -261,12 +284,11 @@ export default function Home() {
             <ExpandControls actions={actions} />
           </div>
           <div className="mr-10 md:m-0">
-
-          <ComponentList
-            components={state.model.components}
-            state={state}
-            actions={actions}
-          />
+            <ComponentList
+              components={state.model.components}
+              state={state}
+              actions={actions}
+            />
           </div>
         </div>
       </div>

@@ -70,5 +70,6 @@ export type Component = TimerComponent | SetComponent;
 export type Config = {
   title: string;
   id?: string;
+  scrollIntoView?: string;
   components: Component[];
 };

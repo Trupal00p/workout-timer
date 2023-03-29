@@ -1,12 +1,16 @@
-import { AnimatePresence, Reorder } from "framer-motion";
-import { Component } from "../types/config";
+import { PlusCircleIcon } from "@heroicons/react/24/solid";
+import { AnimatePresence, motion, Reorder } from "framer-motion";
+import { Component, Config } from "../types/config";
 import { FormState } from "../types/forms";
 import { ActionDispatchers } from "../util/actionHandlerReducer";
-import { Config } from "../types/config";
-import { FormLevel } from "./TimerForm";
-import { motion } from "framer-motion";
 import Button from "./Button";
-import { PlusCircleIcon } from "@heroicons/react/24/solid";
+import { FormLevel } from "./TimerForm";
+
+const itemVariants = {
+  initial: { opacity: 0, scale: 0.8, height: 0 },
+  visible: { opacity: 1, scale: 1, height: "auto" },
+  hidden: { opacity: 0, scale: 0, height: 0 },
+};
 
 export const ComponentList = ({
   components,
@@ -19,6 +23,7 @@ export const ComponentList = ({
   state: FormState<Config>;
   actions: ActionDispatchers;
 }): JSX.Element => {
+  // const { ref, onAnimationComplete } = useScrollAfterAnimate("visible");
   const onReorder = (components: Component[]) => {
     actions.onReorder(prefix, components);
   };
@@ -26,7 +31,6 @@ export const ComponentList = ({
     <>
       <Reorder.Group
         axis="y"
-        // as='div'
         values={components}
         onReorder={onReorder}
         className="relative overflow-visible"
@@ -36,22 +40,23 @@ export const ComponentList = ({
             const item_prefix = `${prefix}/components/${i}`;
             return (
               <Reorder.Item
+                // onAnimationComplete={onAnimationComplete}
+                // ref={ref}
                 key={c.id}
                 value={c}
-                initial={{ opacity: 0, scale: 0.8, height: 0 }}
-                animate={{ opacity: 1, scale: 1, height: "auto" }}
-                exit={{ opacity: 0, scale: 0, height: 0 }}
+                variants={itemVariants}
+                initial="initial"
+                animate="visible"
+                exit="hidden"
                 dragListener={!c.open}
               >
-                <div className="p-2">
-                  <FormLevel
-                    key={item_prefix}
-                    entry={c}
-                    state={state}
-                    actions={actions}
-                    prefix={item_prefix}
-                  />
-                </div>
+                <FormLevel
+                  key={item_prefix}
+                  entry={c}
+                  state={state}
+                  actions={actions}
+                  prefix={item_prefix}
+                />
               </Reorder.Item>
             );
           })}
